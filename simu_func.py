@@ -47,64 +47,67 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
         m, pos_center = Nx1_stuff.get_optimal_center_pos(m)
     EL_center.centre = pos_center
 
-    # write out mesh with ROI and position of central electrode as control
-    pathfem = os.path.abspath(os.path.expanduser(pathfem))
-    if not os.path.isdir(pathfem):
-        os.mkdir(pathfem)
-    mesh_io.write_geo_spheres([pos_center],
-                              os.path.join(pathfem,'mesh_with_ROI.geo'),
-                                           name=('center'))
-    mesh_io.write_msh(m, os.path.join(pathfem,'mesh_with_ROI.msh'))
+    try:
+        # write out mesh with ROI and position of central electrode as control
+        pathfem = os.path.abspath(os.path.expanduser(pathfem))
+        if not os.path.isdir(pathfem):
+            os.mkdir(pathfem)
+        mesh_io.write_geo_spheres([pos_center],
+                                  os.path.join(pathfem,'mesh_with_ROI.geo'),
+                                               name=('center'))
+        mesh_io.write_msh(m, os.path.join(pathfem,'mesh_with_ROI.msh'))
 
 
-    ###  RUN SIMULATIONS FOR VARIING RADII
-    #######################################
+        ###  RUN SIMULATIONS FOR VARIING RADII
+        #######################################
 
-    Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
-                    current_center, N, radii, [0.],
-                    EL_center, EL_surround)
-
-    m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
-                                        os.path.join(pathfem,'radius'),
-                                        hemi, mask_path,
-                                        radii, [phi],
-                                        var_name, cutoff)
-
-    best_radius = best_radius[0]
-    mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_radii.msh'))
-    print(radii)
-    print(roi_median_r)
-    print(focality_r)
-    print('selecting radius '+ str(best_radius))
-
-
-    ### RUN FINAL SIMULATION AND SAFE ...
-    ###############################################
-    Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'final'),
-                        current_center, N, [best_radius], [phi],
+        Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
+                        current_center, N, radii, [0.],
                         EL_center, EL_surround)
 
-    m_surf, roi_median_f, focality_f, _ = Nx1_stuff.analyse_simus(subpath,
-                                            os.path.join(pathfem,'final'),
+        m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
+                                            os.path.join(pathfem,'radius'),
                                             hemi, mask_path,
-                                            [best_radius], [phi],
+                                            radii, [phi],
                                             var_name, cutoff)
-    mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_final.msh'))
 
-    mdic = {"pos_center": pos_center,
-            "radius_surround": radii,
-            "roi_median_r": roi_median_r,
-            "focality_r": focality_r,
-            "best_radius": best_radius,
-            "phi_offset": 0,
-            "roi_median_p": 0,
-            "focality_p": 0,
-            "best_phi": phi,
-            "final_radius": best_radius,
-            "roi_median_f": roi_median_f,
-            "focality_f": focality_f
-            }
-    savemat(os.path.join(pathfem, 'summary_metrics.mat'), mdic)
-    end_time = perf_counter()
-    time_str = str(timedelta(seconds=(end_time - begin_time)))
-    print(f"\n{subject_files.subid} finished in {time_str}.\n")
+        best_radius = best_radius[0]
+        mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_radii.msh'))
+        print(radii)
+        print(roi_median_r)
+        print(focality_r)
+        print('selecting radius '+ str(best_radius))
+
+
+        ### RUN FINAL SIMULATION AND SAFE ...
+        ###############################################
+        Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'final'),
+                            current_center, N, [best_radius], [phi],
+                            EL_center, EL_surround)
+
+        m_surf, roi_median_f, focality_f, _ = Nx1_stuff.analyse_simus(subpath,
+                                                os.path.join(pathfem,'final'),
+                                                hemi, mask_path,
+                                                [best_radius], [phi],
+                                                var_name, cutoff)
+        mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_final.msh'))
+
+        mdic = {"pos_center": pos_center,
+                "radius_surround": radii,
+                "roi_median_r": roi_median_r,
+                "focality_r": focality_r,
+                "best_radius": best_radius,
+                "phi_offset": 0,
+                "roi_median_p": 0,
+                "focality_p": 0,
+                "best_phi": phi,
+                "final_radius": best_radius,
+                "roi_median_f": roi_median_f,
+                "focality_f": focality_f
+                }
+        savemat(os.path.join(pathfem, 'summary_metrics.mat'), mdic)
+        end_time = perf_counter()
+        time_str = str(timedelta(seconds=(end_time - begin_time)))
+        print(f"\n{subject_files.subid} finished in {time_str}.\n")
+    except:
+        print("Could not process.")
