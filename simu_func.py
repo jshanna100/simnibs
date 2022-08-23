@@ -32,30 +32,30 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     if int(__version__[0])>3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
-    # convert mask to individual space (on central surface)
-    mask_path = os.path.join(root_dir, "ROI", mask)
-    _, mask_pos = Nx1_stuff.convert_mask(mask_path, hemi, subpath)
-    if condition == 'closest':
-        # use skin position closest to CoG of mask
-        pos_center = Nx1_stuff.get_closest_skin_pos(mask_pos, m)
-    else:
-        # project mask positions to pial surface of tet mesh
-        # and relabel corresponding GM triangles
-        m = Nx1_stuff.project_to_pial(mask_pos, m)
-        # solve FEM to get optimal position on skin
-        # with lowest ohmic ressitance to mask
-        m, pos_center = Nx1_stuff.get_optimal_center_pos(m)
-    EL_center.centre = pos_center
-
     try:
+        # convert mask to individual space (on central surface)
+        mask_path = os.path.join(root_dir, "ROI", mask)
+    	_, mask_pos = Nx1_stuff.convert_mask(mask_path, hemi, subpath)
+    	if condition == 'closest':
+        	# use skin position closest to CoG of mask
+        	pos_center = Nx1_stuff.get_closest_skin_pos(mask_pos, m)
+    	else:
+        	# project mask positions to pial surface of tet mesh
+        	# and relabel corresponding GM triangles
+        	m = Nx1_stuff.project_to_pial(mask_pos, m)
+        	# solve FEM to get optimal position on skin
+        	# with lowest ohmic ressitance to mask
+        	m, pos_center = Nx1_stuff.get_optimal_center_pos(m)
+    	EL_center.centre = pos_center
+
         # write out mesh with ROI and position of central electrode as control
-        pathfem = os.path.abspath(os.path.expanduser(pathfem))
-        if not os.path.isdir(pathfem):
-            os.mkdir(pathfem)
-        mesh_io.write_geo_spheres([pos_center],
+	pathfem = os.path.abspath(os.path.expanduser(pathfem))
+	if not os.path.isdir(pathfem):
+	    os.mkdir(pathfem)
+	mesh_io.write_geo_spheres([pos_center],
                                   os.path.join(pathfem,'mesh_with_ROI.geo'),
                                                name=('center'))
-        mesh_io.write_msh(m, os.path.join(pathfem,'mesh_with_ROI.msh'))
+	mesh_io.write_msh(m, os.path.join(pathfem,'mesh_with_ROI.msh'))
 
 
         ###  RUN SIMULATIONS FOR VARIING RADII
