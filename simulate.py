@@ -32,7 +32,7 @@ conditions = ["closest", "optimal"]
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-root_dir = "/home/jev/simnibs/"
+#root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 
