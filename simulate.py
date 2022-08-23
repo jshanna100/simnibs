@@ -22,8 +22,8 @@ def build_subject_paths(root_dir, version):
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
     return subj_dict
 
-masks = ["P1_rTP-RH","P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH", "P7_rDLPFCnew-RH",
-         "P8_lDLPFC-LH"]
+masks = ["P1_rTP-RH","P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
+         "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
 phis = [35., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]
@@ -32,7 +32,7 @@ conditions = ["closest", "optimal"]
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-#root_dir = "/home/jev/simnibs/"
+root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 
