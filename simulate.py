@@ -22,7 +22,7 @@ def build_subject_paths(root_dir, version):
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
     return subj_dict
 
-masks = ["P1_rTP-RH", "P3_lTP-LH", "P4_lTP-LH", "P5_lM1-LH", "P7_rDLPFCnew-RH",
+masks = ["P1_rTP-RH", "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH", "P7_rDLPFCnew-RH",
          "P8_lDLPFC-LH"]
 phis = [35., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "rh", "lh"]
@@ -32,11 +32,11 @@ conditions = ["closest", "optimal"]
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-root_dir = "/home/jev/simnibs/"
+#root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 
-n_jobs = 16
+n_jobs = 8
 
 print(f"\nVersion {version}\n")
 
@@ -55,5 +55,4 @@ EL_surround.thickness = [2, 1]  # 2 mm rubber electrodes on top of 1 mm gel laye
 
 queue = list(product(subj_dicts, mask_dicts, conditions))
 args = [radius_surround, EL_center, EL_surround, root_dir]
-breakpoint()
 Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue)
