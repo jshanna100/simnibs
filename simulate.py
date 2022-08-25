@@ -14,7 +14,7 @@ def build_subject_paths(root_dir, version):
     subj_dirs = next(os.walk(root_dir))[1]
     for subj_dir in subj_dirs:
         if round(version) == 3:
-            m2m_str = f"m2m_T1w"
+            m2m_str = f"m2m_{subj_dir}"
         elif round(version) == 4:
             m2m_str = f"m2m_T1w.nii"
         subjectpaths.append(os.path.join(root_dir, subj_dir, m2m_str))
@@ -55,4 +55,4 @@ EL_surround.thickness = [2, 1]  # 2 mm rubber electrodes on top of 1 mm gel laye
 
 queue = list(product(subj_dicts, mask_dicts, conditions))
 args = [radius_surround, EL_center, EL_surround, root_dir]
-Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue)
+Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue[2:])
