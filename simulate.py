@@ -24,7 +24,7 @@ def build_subject_paths(root_dir, version):
 
 masks = ["P1_rTP-RH", "P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
          "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
-phis = [35., 90., 75., 90., 30., 75.]
+phis = [35., 90., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]
 conditions = ["closest", "optimal"]
@@ -36,11 +36,11 @@ root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 
-n_jobs = 8
+n_jobs = 6
 
 print(f"\nVersion {version}\n")
 
-radius_surround = [60., 65., 70., 75., 80., 85., 90., 95.] # in [mm]
+radius_surround = list(np.arange(30, 100, 10))
 # properties of centre electrode
 EL_center = sim_struct.ELECTRODE()
 EL_center.shape = 'ellipse'  # round shape
