@@ -66,16 +66,19 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
 
     ###  RUN SIMULATIONS FOR VARIING RADII
     #######################################
+    try:
+        Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
+                        current_center, N, radii, [0.],
+                        EL_center, EL_surround)
 
-    Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
-                    current_center, N, radii, [0.],
-                    EL_center, EL_surround)
-
-    m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
-                                        os.path.join(pathfem,'radius'),
-                                        hemi, mask_path,
-                                        radii, [phi],
-                                        var_name, cutoff)
+        m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
+                                            os.path.join(pathfem,'radius'),
+                                            hemi, mask_path,
+                                            radii, [phi],
+                                            var_name, cutoff)
+    except:
+        print("Could not process.")
+        return None
 
     best_radius = best_radius[0]
     mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_radii.msh'))
@@ -87,16 +90,20 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
 
     ### RUN FINAL SIMULATION AND SAFE ...
     ###############################################
-    Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'final'),
-                        current_center, N, [best_radius], [phi],
-                        EL_center, EL_surround)
+    try:
+        Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'final'),
+                            current_center, N, [best_radius], [phi],
+                            EL_center, EL_surround)
 
-    m_surf, roi_median_f, focality_f, _ = Nx1_stuff.analyse_simus(subpath,
-                                            os.path.join(pathfem,'final'),
-                                            hemi, mask_path,
-                                            [best_radius], [phi],
-                                            var_name, cutoff)
-    mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_final.msh'))
+        m_surf, roi_median_f, focality_f, _ = Nx1_stuff.analyse_simus(subpath,
+                                                os.path.join(pathfem,'final'),
+                                                hemi, mask_path,
+                                                [best_radius], [phi],
+                                                var_name, cutoff)
+        mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_final.msh'))
+    except:
+        print("Could not process.")
+        return None
 
     mdic = {"pos_center": pos_center,
             "radius_surround": radii,
@@ -115,5 +122,3 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     end_time = perf_counter()
     time_str = str(timedelta(seconds=(end_time - begin_time)))
     print(f"\n{subject_files.subid} finished in {time_str}.\n")
-    # except:
-    #     print("Could not process.")
