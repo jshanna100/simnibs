@@ -28,6 +28,7 @@ phis = [35., 90., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]
 conditions = ["closest", "optimal"]
+conditions = ["closest"]
 
 version = int(__version__[0])
 
@@ -35,8 +36,7 @@ root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 #root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
-
-n_jobs = 4
+n_jobs = 6
 
 print(f"\nVersion {version}\n")
 
