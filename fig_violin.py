@@ -38,11 +38,15 @@ for project in projects:
     proj_df = this_df.query(f"Project=='{project}'")
     for cond in ["closest", "optimal"]:
         cond_df = proj_df.query(f"Condition=='{cond}'")
-        #best_radius = vers_df["BestRadius"].mode().values[0]
         rads = np.stack(cond_df["Mags"].values)
-        error = np.abs(rads - 0.2)
-        rad_idx = mode(error.argmin(axis=1))[0][0]
+        meds = np.median(rads, axis=0)
+        error = meds - 0.2
+        error[error<0] = np.inf
+        rad_idx = np.argmin(error)
         radii = cond_df["Radii"].values[0]
+        best_radius = radii[rad_idx]
+        best_radii[project][cond] = best_radius
+
         best_radius = radii[rad_idx]
         best_radii[project][cond] = best_radius
         subjs = np.sort(cond_df["Subject"].unique())
@@ -57,7 +61,8 @@ for project in projects:
 best_vals = pd.DataFrame.from_dict(best_vals)
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
-sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Condition", ax=ax)
+sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Condition", ax=ax,
+               inner="points")
 ax.set_title("Magnitude: V4 - Closest vs Optimal", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
               fontweight="bold")
@@ -68,7 +73,8 @@ plt.savefig(join(fig_dir, "Mag_ClosestOptimal_violin.png"))
 
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
-sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Condition", ax=ax)
+sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Condition", ax=ax,
+               inner="points")
 ax.set_title("Focality: V4 - Closest vs Optimal", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
               fontweight="bold")
@@ -87,11 +93,12 @@ for project in projects:
     proj_df = this_df.query(f"Project=='{project}'")
     for version in [3, 4]:
         vers_df = proj_df.query(f"Version=='{version}'")
-        #best_radius = vers_df["BestRadius"].mode().values[0]
         rads = np.stack(vers_df["Mags"].values)
-        error = np.abs(rads - 0.2)
-        rad_idx = mode(error.argmin(axis=1))[0][0]
-        radii = vers_df["Radii"].values[0]
+        meds = np.median(rads, axis=0)
+        error = meds - 0.2
+        error[error<0] = np.inf
+        rad_idx = np.argmin(error)
+        radii = cond_df["Radii"].values[0]
         best_radius = radii[rad_idx]
         best_radii[project][version] = best_radius
         subjs = np.sort(vers_df["Subject"].unique())
@@ -106,8 +113,9 @@ for project in projects:
 best_vals = pd.DataFrame.from_dict(best_vals)
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
-sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Version", ax=ax)
-ax.set_title("Magnitude: Closest - v3 vs. v4", fontsize=24)
+sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Version", ax=ax,
+               inner="points")
+ax.set_title("Magnitude: Closest - v3 vs. v4", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Magnitude", fontsize=24, fontweight="bold")
@@ -116,8 +124,9 @@ ax.set_xticklabels([f"{k} ({v[3]}/{v[4]})"
 plt.savefig(join(fig_dir, "Mag_3vs4_violin.png"))
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
-sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Version", ax=ax)
-ax.set_title("Focality: Closest - v3 vs. v4", fontsize=24)
+sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Version", ax=ax,
+               inner="points")
+ax.set_title("Focality: Closest - v3 vs. v4", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Focality", fontsize=24, fontweight="bold")
