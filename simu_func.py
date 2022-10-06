@@ -8,7 +8,9 @@ from datetime import timedelta
 from simnibs import __version__, sim_struct, mesh_io
 from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
+from emp.empchandefs import prepare_emp
 
+def emp_montage()
 
 def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
              EL_surround, root_dir, N=3, cutoff=.1,
