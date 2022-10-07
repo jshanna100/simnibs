@@ -1,4 +1,4 @@
-def prepare_emp_S(exp):
+def prepare_emp(exp):
     S = sim_struct()
     tdcs_list = S.add_tdcslist()
     if exp == "P1":
@@ -35,7 +35,7 @@ def prepare_emp_S(exp):
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
         elec2.thickness = 5
-        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'];
+        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
     elif exp == "P3":
         tdcs_list.currents = [1e-3, -1e-3]
         # first electrode
@@ -112,7 +112,7 @@ def prepare_emp_S(exp):
         elec1.channelnr = 1
         elec1.centre = 'F4'
         elec1.shape = 'ellipse'
-        elec1.dimensions = [25. 25]
+        elec1.dimensions = [25, 25]
         elec1.thickness = 5
         elec2 = tdcs_list.add_electrode()
         elec2.channelnr = 2
