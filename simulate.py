@@ -38,6 +38,8 @@ data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 n_jobs = 6
 
+breakpoint()
+
 print(f"\nVersion {version}\n")
 
 radius_surround = list(np.arange(30, 100, 10))
