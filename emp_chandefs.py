@@ -1,5 +1,7 @@
+from simnibs import sim_struct
+
 def prepare_emp(exp):
-    S = sim_struct()
+    S = sim_struct.SESSION()
     tdcs_list = S.add_tdcslist()
     if exp == "P1":
         tdcs_list.currents = [1e-3, -1e-3]
@@ -24,7 +26,7 @@ def prepare_emp(exp):
         elec1 = tdcs_list.add_electrode()
         elec1.channelnr = 1
         elec1.centre = 'P4'
-        elec1.pos_ydir = 'P08'
+        elec1.pos_ydir = 'PO8'
         elec1.shape = 'rect'
         elec1.dimensions = [50, 70]
         elec1.thickness = 5
@@ -35,7 +37,6 @@ def prepare_emp(exp):
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
         elec2.thickness = 5
-        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
     elif exp == "P3":
         tdcs_list.currents = [1e-3, -1e-3]
         # first electrode
@@ -104,7 +105,6 @@ def prepare_emp(exp):
         elec2.shape = 'rect'
         elec2.dimensions = [50, 50]
         elec2.thickness = 5
-        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
     elif exp == "P7":
         tdcs_list.currents = [1e-3, -1e-3]
         # first electrode
@@ -120,13 +120,13 @@ def prepare_emp(exp):
         elec2.shape = 'ellipse'
         elec2.dimensions = [115, 115]
         elec2.thickness = 5
-        elec2.holes = sim_struct.ELECTRODE()
-        elec2.holes.centre = "F4"
-        elec2.holes.shape = "ellipse"
-        elec2.holes.dimensions = [92, 92]
+        hole = elec2.add_hole()
+        hole.centre = "F4"
+        hole.shape = "ellipse"
+        hole.dimensions = [92, 92]
     elif exp == "P8":
         centres = ["F3", "F1", "AF3", "F5", "FC3"]
-        tdcs_list.currents = [2e-3, -.5e-3, -.5e-3, -.5e-3, -5e-3]
+        tdcs_list.currents = [2e-3, -.5e-3, -.5e-3, -.5e-3, -.5e-3]
         for idx, centre in zip(range(1,6), centres):
             elec = tdcs_list.add_electrode()
             elec.channelnr = idx

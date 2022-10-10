@@ -8,16 +8,21 @@ from datetime import timedelta
 from simnibs import __version__, sim_struct, mesh_io
 from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
-from emp.emp_chandefs import prepare_emp
+from emp_chandefs import prepare_emp
 
-def emp_montage(subj_dict, project, root_dir):
+def emp_montage(subj_dict, proj_dict, root_dir):
+    project, mask, hemi = (list(proj_dict.keys())[0],
+                           *list(proj_dict.values())[0])
+    print(f"\n\n\n{project} {mask} {hemi}\n\n\n")
     begin_time = perf_counter()
     subname, subpath = list(subj_dict.keys())[0], list(subj_dict.values())[0]
     version = int(__version__[0])
     if int(version)>3:
         var_name = 'E_magn'
+        field_name = "magnE"
     else:
         var_name = 'E_norm'
+        field_name = "normE"
     subject_files = SubjectFiles(subpath=subpath)
     pathfem = os.path.join(root_dir, f"{version}_emp",
                            f"{subname}_{project}")
@@ -35,28 +40,72 @@ def emp_montage(subj_dict, project, root_dir):
     if int(__version__[0])>3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
-    mask_path = os.path.join(root_dir, "ROI", mask)
-    _, mask_pos = Nx1_stuff.convert_mask(mask_path, hemi, subpath)
-    pos_center = Nx1_stuff.get_closest_skin_pos(mask_pos, m)
-    mesh_io.write_geo_spheres([pos_center],
-                               os.path.join(pathfem, 'mesh_with_ROI.geo'),
-                               name=('center'))
-    mesh_io.write_msh(m, os.path.join(pathfem, 'mesh_with_ROI.msh'))
+    if mask:
+        mask_path = os.path.join(root_dir, "ROI", mask)
+        _, mask_pos = Nx1_stuff.convert_mask(mask_path, hemi, subpath)
+        pos_center = Nx1_stuff.get_closest_skin_pos(mask_pos, m)
 
-    try:
-        S = prepare_emp(project)
-        S.subpath = subpath
-        S.pathfem = pathfem
-        S.map_to_surf = True
-        S.map_to_fsavg = True
-        S.open_in_gmsh = False
-        ff = SubjectFiles(subpath=subpath)
-        S.fnamehead = ff.fnamehead
-        S.run()
+        pathfem = os.path.abspath(os.path.expanduser(pathfem))
+        if not os.path.isdir(pathfem):
+            os.mkdir(pathfem)
+        mesh_io.write_geo_spheres([pos_center],
+                                   os.path.join(pathfem, 'mesh_with_ROI.geo'),
+                                   name=('center'))
+        mesh_io.write_msh(m, os.path.join(pathfem, 'mesh_with_ROI.msh'))
 
-    except:
-        print("Could not process.")
-        return None
+    #try:
+    S = prepare_emp(project)
+    S.subpath = subpath
+    if project == "P2" or project == "P6":
+        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
+    S.pathfem = pathfem
+    S.map_to_surf = True
+    S.map_to_fsavg = True
+    S.map_to_MNI = True
+    S.open_in_gmsh = False
+    ff = SubjectFiles(subpath=subpath)
+    S.fnamehead = ff.fnamehead
+    S.run()
+
+    if project == "P6":
+        mesh = mesh_io.read_msh(os.path.join(S.pathfem,
+                                             "T1w.nii_TDCS_1_scalar.msh"))
+        gray_matter = mesh.crop_mesh(2)
+        ROI_center = [13, -79, -37]
+        rad = 10.
+        elm_centers = gray_matter.elements_baricenters()[:]
+        roi = np.linalg.norm(elm_centers - ROI_center, axis=1) < rad
+        elm_vols = gray_matter.elements_volumes_and_areas()[:]
+        gray_matter.add_element_field(roi, 'roi')
+        field = gray_matter.field[field_name][:]
+        median = np.median(field)
+        focality = np.sum(field[field>median])
+        mesh_io.write_msh(gray_matter, os.path.join(S.pathfem,
+                                                    "results.msh"))
+        pos_center = ROI_center
+    else:
+        m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)
+        nd_sze = m_surf.nodes_volumes_or_areas().value
+        idx_mask = m_surf.nodedata[0].value
+        m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
+                                          "T1w.nii_TDCS_1_scalar_central.msh"))
+        assert m.nodes.nr == m_surf.nodes.nr
+        nd = next(x.value for x in m.nodedata if x.field_name==var_name)
+        m_surf.add_node_field(nd, "result")
+        median = np.median(nd[idx_mask])
+        focality = np.sum(nd_sze[nd > median])
+
+        mesh_io.write_msh(m_surf, os.path.join(pathfem, 'results.msh'))
+
+    mdic = {"pos_center": pos_center,
+            "focality": focality,
+            "median": median,
+            }
+    savemat(os.path.join(pathfem, 'summary_metrics.mat'), mdic)
+
+    # except:
+    #     print("Could not process.")
+    #     return None
 
 def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
              EL_surround, root_dir, N=3, cutoff=.1,
