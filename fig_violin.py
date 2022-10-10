@@ -28,6 +28,8 @@ df = pd.concat([df_3, df_4])
 
 projects = np.sort(df["Project"].unique())
 
+inner = "points"
+
 # v4: closest vs optimal
 best_radii = {}
 best_vals = {"Project":[], "Subject":[], "Condition":[], "Mags":[], "Focs":[]}
@@ -62,26 +64,27 @@ best_vals = pd.DataFrame.from_dict(best_vals)
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Condition", ax=ax,
-               inner="points")
+               inner=inner)
+plt.axhline(0.2, linestyle="--", color="gray")
 ax.set_title("Magnitude: V4 - Closest vs Optimal", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Magnitude", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v['closest']}/{v['optimal']})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, "Mag_ClosestOptimal_violin.png"))
+plt.savefig(join(fig_dir, f"Mag_ClosestOptimal_violin_{inner}.png"))
 
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Condition", ax=ax,
-               inner="points")
+               inner=inner)
 ax.set_title("Focality: V4 - Closest vs Optimal", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Focality", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v['closest']}/{v['optimal']})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, "Foc_ClosestOptimal_violin.png"))
+plt.savefig(join(fig_dir, f"Foc_ClosestOptimal_violin_{inner}.png"))
 
 # closest: 3 vs 4
 best_radii = {}
@@ -98,7 +101,7 @@ for project in projects:
         error = meds - 0.2
         error[error<0] = np.inf
         rad_idx = np.argmin(error)
-        radii = cond_df["Radii"].values[0]
+        radii = vers_df["Radii"].values[0]
         best_radius = radii[rad_idx]
         best_radii[project][version] = best_radius
         subjs = np.sort(vers_df["Subject"].unique())
@@ -112,26 +115,31 @@ for project in projects:
             best_vals["Focs"].append(line["Focs"].values[0][rad_idx])
 best_vals = pd.DataFrame.from_dict(best_vals)
 
+
+
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Version", ax=ax,
-               inner="points")
+               inner=inner)
+plt.axhline(0.2, linestyle="--", color="gray")
 ax.set_title("Magnitude: Closest - v3 vs. v4", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Magnitude", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v[3]}/{v[4]})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, "Mag_3vs4_violin.png"))
+plt.savefig(join(fig_dir, f"Mag_3vs4_violin_{inner}.png"))
+
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Version", ax=ax,
-               inner="points")
+               inner=inner)
 ax.set_title("Focality: Closest - v3 vs. v4", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Focality", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v[3]}/{v[4]})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, "Foc_3vs4_violin.png"))
+plt.savefig(join(fig_dir, f"Foc_3vs4_violin_{inner}.png"))
+
 
 df.to_excel(join(fig_dir, "simnibs_3vs4.xlsx"))

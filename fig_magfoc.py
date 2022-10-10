@@ -12,12 +12,56 @@ font = {'weight' : 'bold',
         'size'   : 18}
 matplotlib.rc('font', **font)
 
-version = 3
 root_dir = "/home/hannaj/"
 root_dir = "/home/jev/"
-data_dir = join(root_dir, f"simnibs/{version}_results")
+
 fig_dir = join(root_dir, "simnibs/figures")
 
+# compare 3 and 4 with across subject averages
+data_dir = join(root_dir, "simnibs/3_results")
+df_3 = pd.read_pickle(join(data_dir, "df_3.pickle"))
+df_3["Version"] = pd.Series(np.ones(len(df_3))*3)
+data_dir = join(root_dir, "simnibs/4_results")
+df_4 = pd.read_pickle(join(data_dir, "df_4.pickle"))
+df_4["Version"] = pd.Series(np.ones(len(df_4))*4)
+df = pd.concat([df_3, df_4])
+df = df.query("Condition=='closest'")
+projects = np.sort(df["Project"].unique())
+mag_fig, mag_axes = plt.subplots(2, 4, figsize=(38.4, 21.6))
+plt.title("Magnitude")
+foc_fig, foc_axes = plt.subplots(2, 4, figsize=(38.4, 21.6))
+plt.title("Focality")
+mag_axes = [ax for axe in mag_axes for ax in axe]
+foc_axes = [ax for axe in foc_axes for ax in axe]
+for proj_idx, project in enumerate(projects):
+    this_df = df.query(f"Project=='{project}'")
+    # build a new df in a format where this can be easily plotted
+    df_dict = {"Subject":[], "Radius":[], "Magnitude":[], "Focality":[],
+               "Version":[]}
+    radii = this_df.iloc[0]["Radii"]
+    for row_idx, row in this_df.iterrows():
+        for rad_idx, radius in enumerate(radii):
+            df_dict["Subject"].append(row["Subject"])
+            df_dict["Radius"].append(radius)
+            df_dict["Magnitude"].append(row["Mags"][rad_idx])
+            df_dict["Focality"].append(row["Focs"][rad_idx])
+            df_dict["Version"].append(row["Version"])
+    temp_df = pd.DataFrame.from_dict(df_dict)
+
+    sns.lineplot(data=temp_df, x="Radius", y="Magnitude", hue="Version",
+                 ax=mag_axes[proj_idx])
+    sns.lineplot(data=temp_df, x="Radius", y="Focality", hue="Version",
+                 ax=foc_axes[proj_idx])
+    mag_axes[proj_idx].set_title(project)
+    foc_axes[proj_idx].set_title(project)
+    mag_fig.savefig(join(fig_dir, "mag_projavg.png"))
+    foc_fig.savefig(join(fig_dir, "foc_projavg.png"))
+breakpoint()
+
+# plot by subject for a certain version
+
+version = 3
+data_dir = join(root_dir, f"simnibs/{version}_results")
 df = pd.read_pickle(join(data_dir, f"df_{version}.pickle"))
 
 projects = np.sort(df["Project"].unique())

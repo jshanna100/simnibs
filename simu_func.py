@@ -110,11 +110,11 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
             "roi_median_r": roi_median_r,
             "focality_r": focality_r,
             "best_radius": best_radius,
-            "phi_offset": 0,
-            "roi_median_p": 0,
-            "focality_p": 0,
+            "phi_offset": 0, # no longer relevant with constant phi
+            "roi_median_p": 0,  # no longer relevant with constant phi
+            "focality_p": 0,  # no longer relevant with constant phi
             "best_phi": phi,
-            "final_radius": best_radius,
+            "final_radius": best_radius,  # same as best with constant phi
             "roi_median_f": roi_median_f,
             "focality_f": focality_f
             }
