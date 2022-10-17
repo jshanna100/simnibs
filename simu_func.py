@@ -17,7 +17,7 @@ def emp_montage(subj_dict, proj_dict, root_dir):
     begin_time = perf_counter()
     subname, subpath = list(subj_dict.keys())[0], list(subj_dict.values())[0]
     version = int(__version__[0])
-    if int(version)>3:
+    if version > 3:
         var_name = 'E_magn'
         field_name = "magnE"
     else:
@@ -37,7 +37,7 @@ def emp_montage(subj_dict, proj_dict, root_dir):
     except:
         print("No mesh file found.")
         return None
-    if int(__version__[0])>3:
+    if version > 3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
     if mask:
@@ -68,8 +68,9 @@ def emp_montage(subj_dict, proj_dict, root_dir):
     S.run()
 
     if project == "P6":
-        mesh = mesh_io.read_msh(os.path.join(S.pathfem,
-                                             "T1w.nii_TDCS_1_scalar.msh"))
+        msh_file = "TDCS_1_scalar.msh"
+        msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
+        mesh = mesh_io.read_msh(os.path.join(S.pathfem, msh_file))
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         rad = 10.
@@ -84,11 +85,13 @@ def emp_montage(subj_dict, proj_dict, root_dir):
                                                     "results.msh"))
         pos_center = ROI_center
     else:
+        msh_file = "TDCS_1_scalar_central.msh"
+        msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
         m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)
         nd_sze = m_surf.nodes_volumes_or_areas().value
         idx_mask = m_surf.nodedata[0].value
         m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
-                                          "T1w.nii_TDCS_1_scalar_central.msh"))
+                                          msh_file))
         assert m.nodes.nr == m_surf.nodes.nr
         nd = next(x.value for x in m.nodedata if x.field_name==var_name)
         m_surf.add_node_field(nd, "result")

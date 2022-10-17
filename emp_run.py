@@ -31,7 +31,7 @@ hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
 proj_dicts = [{proj:[mask, hemi]} for proj, mask, hemi in zip(projs, masks,
                                                               hemis)]
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-#root_dir = "/home/jev/simnibs/"
+root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 n_jobs = 6
