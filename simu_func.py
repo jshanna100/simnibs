@@ -10,7 +10,7 @@ from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
 from emp_chandefs import prepare_emp
 
-def emp_montage(subj_dict, proj_dict, root_dir):
+def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     project, mask, hemi = (list(proj_dict.keys())[0],
                            *list(proj_dict.values())[0])
     print(f"\n\n\n{project} {mask} {hemi}\n\n\n")
@@ -26,7 +26,7 @@ def emp_montage(subj_dict, proj_dict, root_dir):
     subject_files = SubjectFiles(subpath=subpath)
     pathfem = os.path.join(root_dir, f"{version}_emp",
                            f"{subname}_{project}")
-    if os.path.isdir(pathfem):
+    if os.path.isdir(pathfem) and not extract_only:
         print("Already exists. Skipping.")
         return None
     print(pathfem)
@@ -48,29 +48,30 @@ def emp_montage(subj_dict, proj_dict, root_dir):
         pathfem = os.path.abspath(os.path.expanduser(pathfem))
         if not os.path.isdir(pathfem):
             os.mkdir(pathfem)
-        mesh_io.write_geo_spheres([pos_center],
-                                   os.path.join(pathfem, 'mesh_with_ROI.geo'),
-                                   name=('center'))
-        mesh_io.write_msh(m, os.path.join(pathfem, 'mesh_with_ROI.msh'))
+        if not extract_only:
+            mesh_io.write_geo_spheres([pos_center],
+                                       os.path.join(pathfem,
+                                                    'mesh_with_ROI.geo'),
+                                       name=('center'))
+            mesh_io.write_msh(m, os.path.join(pathfem, 'mesh_with_ROI.msh'))
 
-    #try:
-    S = prepare_emp(project)
-    S.subpath = subpath
-    if project == "P2" or project == "P6":
-        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
-    S.pathfem = pathfem
-    S.map_to_surf = True
-    S.map_to_fsavg = True
-    S.map_to_MNI = True
-    S.open_in_gmsh = False
-    ff = SubjectFiles(subpath=subpath)
-    S.fnamehead = ff.fnamehead
-    S.run()
+    if not extract_only:
+        S = prepare_emp(project)
+        S.subpath = subpath
+        if project == "P2" or project == "P6":
+            S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
+        S.pathfem = pathfem
+        S.map_to_surf = True
+        S.map_to_fsavg = True
+        S.map_to_MNI = True
+        S.open_in_gmsh = False
+        S.fnamehead = subject_files.fnamehead
+        S.run()
 
     if project == "P6":
         msh_file = "TDCS_1_scalar.msh"
         msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
-        mesh = mesh_io.read_msh(os.path.join(S.pathfem, msh_file))
+        mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         rad = 10.
@@ -80,9 +81,12 @@ def emp_montage(subj_dict, proj_dict, root_dir):
         gray_matter.add_element_field(roi, 'roi')
         field = gray_matter.field[field_name][:]
         median = np.median(field)
-        focality = np.sum(field[field>median])
-        mesh_io.write_msh(gray_matter, os.path.join(S.pathfem,
-                                                    "results.msh"))
+        mean = np.mean(field)
+        focality_med = np.sum(field[field>median])
+        focality_mean = np.sum(field[field>mean])
+        if not extract_only:
+            mesh_io.write_msh(gray_matter, os.path.join(S.pathfem,
+                                                        "results.msh"))
         pos_center = ROI_center
     else:
         msh_file = "TDCS_1_scalar_central.msh"
@@ -96,19 +100,19 @@ def emp_montage(subj_dict, proj_dict, root_dir):
         nd = next(x.value for x in m.nodedata if x.field_name==var_name)
         m_surf.add_node_field(nd, "result")
         median = np.median(nd[idx_mask])
-        focality = np.sum(nd_sze[nd > median])
-
-        mesh_io.write_msh(m_surf, os.path.join(pathfem, 'results.msh'))
+        mean = np.mean(nd[idx_mask])
+        focality_med = np.sum(nd_sze[nd > median])
+        focality_mean = np.sum(nd_sze[nd > mean])
+        if not extract_only:
+            mesh_io.write_msh(m_surf, os.path.join(pathfem, 'results.msh'))
 
     mdic = {"pos_center": pos_center,
-            "focality": focality,
+            "focality_med": focality_med,
+            "focality_mean": focality_mean,
             "median": median,
+            "mean": mean
             }
     savemat(os.path.join(pathfem, 'summary_metrics.mat'), mdic)
-
-    # except:
-    #     print("Could not process.")
-    #     return None
 
 def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
              EL_surround, root_dir, N=3, cutoff=.1,

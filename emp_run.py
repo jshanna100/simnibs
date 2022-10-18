@@ -27,6 +27,7 @@ hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
 # projs = ["P6"]
 # masks = [None]
 # hemi = [None]
+kwargs = {"extract_only":True}
 
 proj_dicts = [{proj:[mask, hemi]} for proj, mask, hemi in zip(projs, masks,
                                                               hemis)]
@@ -34,7 +35,7 @@ root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 #root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
-n_jobs = 6
+n_jobs = 1
 queue = list(product(subj_dicts, proj_dicts))
 #queue = [queue[0]]
-Parallel(n_jobs=n_jobs)(delayed(emp_montage)(*q, root_dir) for q in queue)
+Parallel(n_jobs=n_jobs)(delayed(emp_montage)(*q, root_dir, *kwargs) for q in queue)
