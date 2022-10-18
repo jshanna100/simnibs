@@ -11,8 +11,8 @@ data_dir = os.path.join(root_dir, f"simnibs/{version}_emp")
 res_dirs = next(os.walk(data_dir))[1]
 
 failed_dirs = []
-df_vars = ["Project", "Subject", "Mag_Mean", "Mag_Median", "Foc_Mean",
-           "Foc_Median"]
+df_vars = ["Project", "Subject", "Mag", "Mag", "Foc",
+           "Foc", "Summary"]
 df_dict = {x:[] for x in df_vars}
 for rd in res_dirs:
     files = os.listdir(os.path.join(data_dir, rd))
@@ -26,10 +26,14 @@ for rd in res_dirs:
 
     df_dict["Project"].append(proj)
     df_dict["Subject"].append(subj)
-    df_dict["Mag_Median"].append(mat["median"][0][0])
-    df_dict["Foc_Median"].append(mat["focality_med"][0][0])
-    df_dict["Mag_Mean"].append(mat["mean"][0][0])
-    df_dict["Foc_Mean"].append(mat["focality_mean"][0][0])
+    df_dict["Summary"].append("ROI_Median")
+    df_dict["Mag"].append(mat["median"][0][0])
+    df_dict["Foc"].append(mat["focality_med"][0][0])
+    df_dict["Project"].append(proj)
+    df_dict["Subject"].append(subj)
+    df_dict["Summary"].append("ROI_Mean")
+    df_dict["Mag"].append(mat["mean"][0][0])
+    df_dict["Foc"].append(mat["focality_mean"][0][0])
 
 
 df = pd.DataFrame.from_dict(df_dict)

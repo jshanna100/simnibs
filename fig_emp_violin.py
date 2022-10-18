@@ -18,13 +18,13 @@ root_dir = "/home/jev/"
 
 fig_dir = join(root_dir, "simnibs/figures")
 
-data_dir = join(root_dir, "simnibs/3_emp")
-df_3 = pd.read_pickle(join(data_dir, "df_emp_3.pickle"))
-df_3["Version"] = ["3"] * len(df_3)
+# data_dir = join(root_dir, "simnibs/3_emp")
+# df_3 = pd.read_pickle(join(data_dir, "df_emp_3.pickle"))
+# df_3["Version"] = ["3"] * len(df_3)
 data_dir = join(root_dir, "simnibs/4_emp")
 df_4 = pd.read_pickle(join(data_dir, "df_emp_4.pickle"))
 df_4["Version"] = ["4"] * len(df_4)
-df = pd.concat([df_3, df_4])
+#df = pd.concat([df_3, df_4])
 
 
 sns.violinplot(data=df, x="Project", y="Mag", hue="Version",
