@@ -3,9 +3,9 @@ import os
 import pandas as pd
 import re
 
-version = 3
+version = 4
 root_dir = "/home/hannaj/"
-root_dir = "/home/jev/"
+#root_dir = "/home/jev/"
 data_dir = os.path.join(root_dir, f"simnibs/{version}_emp")
 
 res_dirs = next(os.walk(data_dir))[1]
