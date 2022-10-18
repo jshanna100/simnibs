@@ -94,8 +94,11 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)
         nd_sze = m_surf.nodes_volumes_or_areas().value
         idx_mask = m_surf.nodedata[0].value
-        m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
-                                          msh_file))
+        try:
+            m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
+                                              msh_file))
+        except:
+            continue
         assert m.nodes.nr == m_surf.nodes.nr
         nd = next(x.value for x in m.nodedata if x.field_name==var_name)
         m_surf.add_node_field(nd, "result")

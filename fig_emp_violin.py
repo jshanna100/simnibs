@@ -27,5 +27,5 @@ df_4["Version"] = ["4"] * len(df_4)
 #df = pd.concat([df_3, df_4])
 
 
-sns.violinplot(data=df, x="Project", y="Mag", hue="Version",
+sns.violinplot(data=df_4, x="Project", y="Mag", hue="Version",
                order=[f"P{p}" for p in np.arange(1,9)], inner="points")
