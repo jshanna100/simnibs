@@ -71,7 +71,10 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     if project == "P6":
         msh_file = "TDCS_1_scalar.msh"
         msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
-        mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
+        try:
+            mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
+        except:
+            return None
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         rad = 10.
@@ -98,7 +101,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
             m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
                                               msh_file))
         except:
-            continue
+            return None
         assert m.nodes.nr == m_surf.nodes.nr
         nd = next(x.value for x in m.nodedata if x.field_name==var_name)
         m_surf.add_node_field(nd, "result")
