@@ -23,23 +23,26 @@ data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir, version)
 
 for subj_dict in subj_dicts:
-    subj_dir = list(subj_dict.values())[0]
-    this_path = os.path.join(subj_dir, "eeg_positions",
-                             "EEGcap_incl_cheek_buci_2.csv")
-    df = pd.read_csv(this_path, header=None)
+    try:
+        subj_dir = list(subj_dict.values())[0]
+        this_path = os.path.join(subj_dir, "eeg_positions",
+                                 "EEGcap_incl_cheek_buci_2.csv")
+        df = pd.read_csv(this_path, header=None)
 
-    chk_row = df[df[4]=="Lch"].copy()
-    flip_x = -1 * chk_row[1].values[0]
-    chk_row[1] = flip_x
-    chk_row[4] = "Rch"
-    df = df.append(chk_row)
+        chk_row = df[df[4]=="Lch"].copy()
+        flip_x = -1 * chk_row[1].values[0]
+        chk_row[1] = flip_x
+        chk_row[4] = "Rch"
+        df = df.append(chk_row)
 
-    chk_row = df[df[4]=="yLch"].copy()
-    flip_x = -1 * chk_row[1].values[0]
-    chk_row[1] = flip_x
-    chk_row[4] = "yRch"
-    df = df.append(chk_row)
+        chk_row = df[df[4]=="yLch"].copy()
+        flip_x = -1 * chk_row[1].values[0]
+        chk_row[1] = flip_x
+        chk_row[4] = "yRch"
+        df = df.append(chk_row)
 
-    out_path = os.path.join(subj_dir, "eeg_positions",
-                             "EEGcap_incl_cheek_buci_3.csv")
-    df.to_csv(out_path, header=False, index=False)
+        out_path = os.path.join(subj_dir, "eeg_positions",
+                                 "EEGcap_incl_cheek_buci_3.csv")
+        df.to_csv(out_path, header=False, index=False)
+    except:
+        print(f"\n\nCould not add channels for subject {subj_dir}\n\n")
