@@ -14,7 +14,7 @@ def build_subject_paths(root_dir, version):
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
     return subj_dict
 
-version = 3
+version = 4
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 #root_dir = "/home/jev/simnibs/"
