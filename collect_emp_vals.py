@@ -5,7 +5,7 @@ import re
 
 version = 3
 root_dir = "/home/hannaj/"
-#root_dir = "/home/jev/"
+root_dir = "/home/jev/"
 data_dir = os.path.join(root_dir, f"simnibs/{version}_emp")
 
 res_dirs = next(os.walk(data_dir))[1]
@@ -34,7 +34,6 @@ for rd in res_dirs:
     df_dict["Summary"].append("ROI_Mean")
     df_dict["Mag"].append(mat["mean"][0][0])
     df_dict["Foc"].append(mat["focality_mean"][0][0])
-
 
 df = pd.DataFrame.from_dict(df_dict)
 df.to_pickle(os.path.join(data_dir, f"df_emp_{version}.pickle"))

@@ -5,7 +5,7 @@ from scipy.io import savemat
 from time import perf_counter
 from datetime import timedelta
 
-from simnibs import __version__, sim_struct, mesh_io
+from simnibs import __version__, sim_struct, mesh_io, mni2subject_coords
 from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
 from emp_chandefs import prepare_emp
@@ -59,7 +59,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         S = prepare_emp(project)
         S.subpath = subpath
         if project == "P2" or project == "P6":
-            S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
+            S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_3.csv'
         S.pathfem = pathfem
         S.map_to_surf = True
         S.map_to_fsavg = True
@@ -71,26 +71,28 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     if project == "P6":
         msh_file = "TDCS_1_scalar.msh"
         msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
-        try:
-            mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
-        except:
-            return None
+        #try:
+        mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
+        # except:
+        #     return None
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
+        subj_center = mni2subject_coords(ROI_center, subpath)
         rad = 10.
         elm_centers = gray_matter.elements_baricenters()[:]
-        roi = np.linalg.norm(elm_centers - ROI_center, axis=1) < rad
+        roi = np.linalg.norm(elm_centers - subj_center, axis=1) < rad
         elm_vols = gray_matter.elements_volumes_and_areas()[:]
         gray_matter.add_element_field(roi, 'roi')
         field = gray_matter.field[field_name][:]
-        median = np.median(field)
-        mean = np.mean(field)
-        focality_med = np.sum(field[field>median])
-        focality_mean = np.sum(field[field>mean])
+        vals = field[roi]
+        mean = np.average(vals, weights=elm_vols[roi])
+        median = np.median(vals)
+        focality_med = np.sum(vals[vals>median])
+        focality_mean = np.sum(vals[vals>mean])
         if not extract_only:
             mesh_io.write_msh(gray_matter, os.path.join(S.pathfem,
                                                         "results.msh"))
-        pos_center = ROI_center
+        pos_center = subj_center
     else:
         msh_file = "TDCS_1_scalar_central.msh"
         msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file

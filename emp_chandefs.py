@@ -25,15 +25,15 @@ def prepare_emp(exp):
         # first electrode
         elec1 = tdcs_list.add_electrode()
         elec1.channelnr = 1
-        elec1.centre = 'P4'
-        elec1.pos_ydir = 'PO8'
+        elec1.centre = 'P3'
+        elec1.pos_ydir = 'PO7'
         elec1.shape = 'rect'
         elec1.dimensions = [50, 70]
         elec1.thickness = 5
         elec2 = tdcs_list.add_electrode()
         elec2.channelnr = 2
-        elec2.centre = 'Lch'
-        elec2.pos_ydir = 'yLch'
+        elec2.centre = 'Rch'
+        elec2.pos_ydir = 'yRch'
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
         elec2.thickness = 5
