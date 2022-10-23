@@ -26,15 +26,18 @@ df_4 = pd.read_pickle(join(data_dir, "df_emp_4.pickle"))
 df_4["Version"] = ["4"] * len(df_4)
 df = pd.concat([df_3, df_4])
 
+df = df.query("Summary=='ROI_Median'")
 
+# facet = sns.catplot(data=df, x="Project", y="Mag", hue="Version", kind="violin",
+#             col="Summary",
+#             order=[f"P{p}" for p in np.arange(1,9)], inner="points")
 facet = sns.catplot(data=df, x="Project", y="Mag", hue="Version", kind="violin",
-            col="Summary",
-            order=[f"P{p}" for p in np.arange(1,9)], inner="points")
+                    order=[f"P{p}" for p in np.arange(1,9)], inner="points")
 facet.axes[0][0].axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
                     color="tab:blue", linestyle="--")
 facet.axes[0][0].axhline(df.query("Version=='4' and Summary=='ROI_Median'")["Mag"].mean(),
                     color="tab:orange", linestyle="--")
-facet.axes[0][1].axhline(df.query("Version=='3' and Summary=='ROI_Mean'")["Mag"].mean(),
-                    color="tab:blue", linestyle="--")
-facet.axes[0][1].axhline(df.query("Version=='4' and Summary=='ROI_Mean'")["Mag"].mean(),
-                    color="tab:orange", linestyle="--")
+# facet.axes[0][1].axhline(df.query("Version=='3' and Summary=='ROI_Mean'")["Mag"].mean(),
+#                     color="tab:blue", linestyle="--")
+# facet.axes[0][1].axhline(df.query("Version=='4' and Summary=='ROI_Mean'")["Mag"].mean(),
+#                     color="tab:orange", linestyle="--")
