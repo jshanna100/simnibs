@@ -112,9 +112,11 @@ for proj_idx, project in enumerate(projects):
     temp_df = pd.DataFrame.from_dict(df_dict)
 
     sns.lineplot(data=temp_df, x="Radius", y="Magnitude", hue="Condition",
-                 ax=mag_axes[proj_idx], palette=["r", "g"])
+                 ax=mag_axes[proj_idx], palette=["r", "g"],
+                 hue_order=["optimal", "closest"])
     sns.lineplot(data=temp_df, x="Radius", y="Focality", hue="Condition",
-                 ax=foc_axes[proj_idx] , palette=["r", "g"])
+                 ax=foc_axes[proj_idx] , palette=["r", "g"],
+                 hue_order=["optimal", "closest"])
     mag_axes[proj_idx].set_title(project)
     mag_axes[proj_idx].set_ylim([.05, .7])
     foc_axes[proj_idx].set_ylim([1000, 9000])
@@ -155,7 +157,8 @@ data_dir = join(root_dir, "simnibs/4_results")
 df_4 = pd.read_pickle(join(data_dir, "df_4.pickle"))
 df_4["Version"] = pd.Series(np.ones(len(df_4))*4)
 df = pd.concat([df_3, df_4])
-df_dict = {"Subject":[], "Radius":[], "Magnitude":[], "Project":[], "Version":[]}
+df_dict = {"Subject":[], "Radius":[], "Magnitude":[], "Focality":[],
+           "Project":[], "Version":[]}
 versions = ["3_closest", "4_closest", "4_optimal"]
 for proj_idx, project in enumerate(projects):
     for version in versions:
@@ -172,10 +175,13 @@ for proj_idx, project in enumerate(projects):
             df_dict["Subject"].append(row["Subject"])
             df_dict["Radius"].append(this_radius)
             df_dict["Magnitude"].append(row["Mags"][rad_idx][0])
+            df_dict["Focality"].append(row["Focs"][rad_idx][0])
             df_dict["Project"].append(project)
             df_dict["Version"].append(version)
 
 temp_df = pd.DataFrame.from_dict(df_dict)
+
+# magnitude
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=temp_df, x="Project", y="Magnitude", hue="Version", ax=ax,
@@ -189,7 +195,21 @@ for proj in projects:
 ax.set_xticklabels(x_labels)
 ax.axhline(0.2, color="blue", linestyle='--')
 ax.axhline(0.3, color="black", linestyle='--')
-fig.savefig(join(fig_dir, "adapted_radius.png"))
+fig.savefig(join(fig_dir, "adapted_radius_mag.png"))
+
+# focality
+
+fig, ax = plt.subplots(1, figsize=(38.4, 8))
+sns.violinplot(data=temp_df, x="Project", y="Focality", hue="Version", ax=ax,
+               inner="points", hue_order=versions)
+x_labels = []
+for proj in projects:
+    rads = []
+    for version in versions:
+        rads.append(rad_df.query(f"Project=='{proj}' and Version=='{version}'")["Radius"].values[0])
+    x_labels.append(f"{proj} ({rads[0]}/{rads[1]}/{rads[2]})")
+ax.set_xticklabels(x_labels)
+fig.savefig(join(fig_dir, "adapted_radius_foc.png"))
 
 # # plot by subject for a certain version
 #
