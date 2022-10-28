@@ -11,6 +11,7 @@ import Nx1_stuff
 from emp_chandefs import prepare_emp
 
 def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
+    """Simulate previous literature montages"""
     project, mask, hemi = (list(proj_dict.keys())[0],
                            *list(proj_dict.values())[0])
     print(f"\n\n\n{project} {mask} {hemi}\n\n\n")
@@ -69,12 +70,11 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         S.run()
 
     if project == "P6":
+        # P6 has a spherical ROI, not cortical mask
         msh_file = "TDCS_1_scalar.msh"
         msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
-        #try:
+
         mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
-        # except:
-        #     return None
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         subj_center = mni2subject_coords(ROI_center, subpath)
@@ -125,6 +125,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
 def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
              EL_surround, root_dir, N=3, cutoff=.1,
              multichannel=True, current_center=0.002):
+    """Simulate with variable radius montages"""
     begin_time = perf_counter()
     subname, subpath = list(subj_dict.keys())[0], list(subj_dict.values())[0]
     mask, phi, hemi = (list(mask_dict.keys())[0], *list(mask_dict.values())[0])

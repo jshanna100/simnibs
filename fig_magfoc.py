@@ -13,7 +13,7 @@ font = {'weight' : 'bold',
 matplotlib.rc('font', **font)
 
 root_dir = "/home/hannaj/"
-root_dir = "/home/jev/"
+#root_dir = "/home/jev/"
 
 fig_dir = join(root_dir, "simnibs/figures")
 
@@ -168,6 +168,10 @@ for proj_idx, project in enumerate(projects):
                            f"Condition=='{cond}'")
         this_radius = rad_df.query(f"Version=='{version}' and "
                                    f"Project=='{project}'")["Radius"].values[0]
+
+        # TEMPORARY
+        this_radius = 50 if this_radius < 50 else this_radius
+
         # build a new df in a format where this can be easily plotted
         radii = this_df.iloc[0]["Radii"]
         rad_idx = np.where(radii==this_radius)[0]
@@ -190,7 +194,7 @@ x_labels = []
 for proj in projects:
     rads = []
     for version in versions:
-        rads.append(rad_df.query(f"Project=='{proj}' and Version=='{version}'")["Radius"].values[0])
+        rads.append(temp_df.query(f"Project=='{proj}' and Version=='{version}'")["Radius"].values[0])
     x_labels.append(f"{proj} ({rads[0]}/{rads[1]}/{rads[2]})")
 ax.set_xticklabels(x_labels)
 ax.axhline(0.2, color="blue", linestyle='--')
