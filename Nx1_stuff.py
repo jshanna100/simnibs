@@ -540,8 +540,11 @@ def run_simus(subpath, pathfem, current_center, N,
     S = sim_struct.SESSION()
     S.subpath = subpath
     S.pathfem = pathfem
+
     S.map_to_surf = True
+    S.map_to_vol = True
     S.map_to_fsavg = True
+    S.map_to_MNI = True
     S.open_in_gmsh = False
 
     phis_surround = np.arange(N)/N*360

@@ -63,6 +63,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
             S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_3.csv'
         S.pathfem = pathfem
         S.map_to_surf = True
+        S.map_to_vol = True
         S.map_to_fsavg = True
         S.map_to_MNI = True
         S.open_in_gmsh = False
@@ -223,11 +224,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
             "roi_median_r": roi_median_r,
             "focality_r": focality_r,
             "best_radius": best_radius,
-            "phi_offset": 0, # no longer relevant with constant phi
-            "roi_median_p": 0,  # no longer relevant with constant phi
-            "focality_p": 0,  # no longer relevant with constant phi
             "best_phi": phi,
-            "final_radius": best_radius,  # same as best with constant phi
             "roi_median_f": roi_median_f,
             "focality_f": focality_f
             }
