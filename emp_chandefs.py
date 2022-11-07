@@ -30,12 +30,31 @@ def prepare_emp(exp):
         elec1.shape = 'rect'
         elec1.dimensions = [50, 70]
         elec1.thickness = 5
+        # second electrode
         elec2 = tdcs_list.add_electrode()
         elec2.channelnr = 2
         elec2.centre = 'Rch'
         elec2.pos_ydir = 'yRch'
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
+        elec2.thickness = 5
+    elif exp == "P2_5050":
+        tdcs_list.currents = [2e-3, -2e-3]
+        # first electrode
+        elec1 = tdcs_list.add_electrode()
+        elec1.channelnr = 1
+        elec1.centre = 'P3'
+        elec1.pos_ydir = 'PO7'
+        elec1.shape = 'rect'
+        elec1.dimensions = [50, 50]
+        elec1.thickness = 5
+        # second electrode
+        elec2 = tdcs_list.add_electrode()
+        elec2.channelnr = 2
+        elec2.centre = 'Rch'
+        elec2.pos_ydir = 'yRch'
+        elec2.shape = 'rect'
+        elec2.dimensions = [50, 50]
         elec2.thickness = 5
     elif exp == "P3":
         tdcs_list.currents = [1e-3, -1e-3]
