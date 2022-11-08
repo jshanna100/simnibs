@@ -60,7 +60,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         S = prepare_emp(project)
         S.subpath = subpath
         if project == "P2" or project == "P2_5050" or project == "P6":
-            S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_3.csv'
+            S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
         S.pathfem = pathfem
         S.map_to_surf = True
         S.map_to_vol = True

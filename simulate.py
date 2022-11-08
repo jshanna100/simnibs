@@ -9,14 +9,10 @@ from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
 from simu_func import rad_only
 
-def build_subject_paths(root_dir, version):
+def build_subject_paths(root_dir):
     subjectpaths = []
     subj_dirs = next(os.walk(root_dir))[1]
     for subj_dir in subj_dirs:
-        if round(version) == 3:
-            m2m_str = f"m2m_{subj_dir}"
-        elif round(version) == 4:
-            m2m_str = f"m2m_T1w.nii"
         subjectpaths.append(os.path.join(root_dir, subj_dir, m2m_str))
     subj_dict = [{subject_dir:subj_path} for
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
@@ -35,7 +31,7 @@ version = int(__version__[0])
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 #root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
-subj_dicts = build_subject_paths(data_dir, version)
+subj_dicts = build_subject_paths(data_dir)
 n_jobs = 6
 
 
