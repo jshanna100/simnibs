@@ -18,10 +18,11 @@ version = int(__version__[0])
 
 projs = ["P1", "P2", "P2-5050", "P3", "P4", "P5", "P5-2ma", "P5-2ma-5050",
          "P6", "P6-3030", "P7", "P8"]
-projs = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
-masks = ["P1_rTP-RH", "P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
-         None, "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
-hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
+#projs = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
+masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P2_lPCC-new-LH", "P3_lTP-LH",
+         "P4_lIFG-LH", "P5_lM1-LH", "P5_lM1-LH", "P5_lM1-LH",
+         None, None, "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
+hemis = ['rh', "lh", "lh", "lh", "lh", "lh", "lh", "lh", None, None, "rh", "lh"]
 
 # projs = ["P5"]
 # masks = ["P5_lM1-LH"]
