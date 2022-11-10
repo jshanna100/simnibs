@@ -38,7 +38,7 @@ def prepare_emp(exp):
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
         elec2.thickness = 5
-    elif exp == "P2_5050":
+    elif exp == "P2-5050":
         tdcs_list.currents = [2e-3, -2e-3]
         # first electrode
         elec1 = tdcs_list.add_electrode()
@@ -100,12 +100,49 @@ def prepare_emp(exp):
         elec1.shape = 'rect'
         elec1.dimensions = [50, 70]
         elec1.thickness = 5
+        # second electrode
         elec2 = tdcs_list.add_electrode()
         elec2.channelnr = 2
         elec2.centre = 'AF8'
         elec2.pos_ydir = 'Fp2'
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
+        elec2.thickness = 5
+    elif exp == "P5-2ma":
+        tdcs_list.currents = [2e-3, -2e-3]
+        # first electrode
+        elec1 = tdcs_list.add_electrode()
+        elec1.channelnr = 1
+        elec1.centre = 'C3'
+        elec1.pos_ydir = 'FC3'
+        elec1.shape = 'rect'
+        elec1.dimensions = [50, 70]
+        elec1.thickness = 5
+        # second electrode
+        elec2 = tdcs_list.add_electrode()
+        elec2.channelnr = 2
+        elec2.centre = 'AF8'
+        elec2.pos_ydir = 'Fp2'
+        elec2.shape = 'rect'
+        elec2.dimensions = [70, 50]
+        elec2.thickness = 5
+    elif exp == "P5-2ma-5050":
+        tdcs_list.currents = [2e-3, -2e-3]
+        # first electrode
+        elec1 = tdcs_list.add_electrode()
+        elec1.channelnr = 1
+        elec1.centre = 'C3'
+        elec1.pos_ydir = 'FC3'
+        elec1.shape = 'rect'
+        elec1.dimensions = [50, 50]
+        elec1.thickness = 5
+        # second electrode
+        elec2 = tdcs_list.add_electrode()
+        elec2.channelnr = 2
+        elec2.centre = 'AF8'
+        elec2.pos_ydir = 'Fp2'
+        elec2.shape = 'rect'
+        elec2.dimensions = [50, 50]
         elec2.thickness = 5
     elif exp == "P6":
         tdcs_list.currents = [2e-3, -2e-3]
@@ -117,12 +154,31 @@ def prepare_emp(exp):
         elec1.shape = 'rect'
         elec1.dimensions = [50, 50]
         elec1.thickness = 5
+        # second electrode
         elec2 = tdcs_list.add_electrode()
         elec2.channelnr = 2
         elec2.centre = 'Rbu'
         elec2.pos_ydir = 'yRbu'
         elec2.shape = 'rect'
         elec2.dimensions = [50, 50]
+        elec2.thickness = 5
+    elif exp == "P6-3030":
+        tdcs_list.currents = [2e-3, -2e-3]
+        # first electrode
+        elec1 = tdcs_list.add_electrode()
+        elec1.channelnr = 1
+        elec1.centre = 'I2'
+        elec1.pos_ydir = 'P4'
+        elec1.shape = 'rect'
+        elec1.dimensions = [30, 30]
+        elec1.thickness = 5
+        # second electrode
+        elec2 = tdcs_list.add_electrode()
+        elec2.channelnr = 2
+        elec2.centre = 'Rbu'
+        elec2.pos_ydir = 'yRbu'
+        elec2.shape = 'rect'
+        elec2.dimensions = [30, 30]
         elec2.thickness = 5
     elif exp == "P7":
         tdcs_list.currents = [1e-3, -1e-3]

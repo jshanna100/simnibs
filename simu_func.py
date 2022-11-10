@@ -37,7 +37,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         m = mesh_io.read_msh(subject_files.fnamehead)
     except:
         print("No mesh file found.")
-        return None
+        return (subname, project, "NoMsh")
     if version > 3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
@@ -59,7 +59,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     if not extract_only:
         S = prepare_emp(project)
         S.subpath = subpath
-        if project == "P2" or project == "P2_5050" or project == "P6":
+        if "P2" in project or "P6" in project:
             S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
         S.pathfem = pathfem
         S.map_to_surf = True
@@ -68,12 +68,14 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         S.map_to_MNI = True
         S.open_in_gmsh = False
         S.fnamehead = subject_files.fnamehead
-        S.run()
+        try:
+            S.run()
+        except:
+            return (subname, project, "NoAnalysis")
 
-    if project == "P6":
+    if "P6" in project:
         # P6 has a spherical ROI, not cortical mask
-        msh_file = "TDCS_1_scalar.msh"
-        msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
+        msh_file = f"{subject_files.subid}_TDCS_1_scalar.msh"
 
         mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
         gray_matter = mesh.crop_mesh(2)
@@ -95,8 +97,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
                                                         "results.msh"))
         pos_center = subj_center
     else:
-        msh_file = "TDCS_1_scalar_central.msh"
-        msh_file = "T1w.nii_" + msh_file if version > 3 else subject_files.subid + "_" + msh_file
+        msh_file = f"{subject_files.subid}_TDCS_1_scalar_central.msh"
         m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)
         nd_sze = m_surf.nodes_volumes_or_areas().value
         idx_mask = m_surf.nodedata[0].value
@@ -104,7 +105,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
             m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
                                               msh_file))
         except:
-            return None
+            return (subname, project, "NoMesh")
         assert m.nodes.nr == m_surf.nodes.nr
         nd = next(x.value for x in m.nodedata if x.field_name==var_name)
         m_surf.add_node_field(nd, "result")
@@ -122,6 +123,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
             "mean": mean
             }
     savemat(os.path.join(pathfem, 'summary_metrics.mat'), mdic)
+    return (subname, project, "Pass")
 
 def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
              EL_surround, root_dir, N=3, cutoff=.1,
@@ -141,7 +143,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
                            f"{mask}__{subname}__{condition}")
     if os.path.isdir(pathfem):
         print("Already exists. Skipping.")
-        return None
+        return ()
     print(pathfem)
     print(f"Subject {subject_files.subid}")
 
@@ -149,7 +151,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
         m = mesh_io.read_msh(subject_files.fnamehead)
     except:
         print("No mesh file found.")
-        return None
+        return (subname, project, "NoMeshFound")
     if int(__version__[0])>3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
