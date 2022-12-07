@@ -41,5 +41,5 @@ n_jobs = 6
 queue = list(product(subj_dicts, proj_dicts))
 results = Parallel(n_jobs=n_jobs)(delayed(emp_montage)(*q, root_dir, **kwargs) for q in queue)
 results = [r for r in results if r is not None]
-with open(f"{root_dir}/{version}_emp/df_emp_{version}.pickle", "wb") as f:
+with open(f"{root_dir}/{version}_emp/success_record.pickle", "wb") as f:
     pickle.dump(results, f)
