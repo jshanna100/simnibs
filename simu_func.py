@@ -34,10 +34,10 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     print(f"Subject {subject_files.subid}")
 
     try:
-        m = mesh_io.read_msh(subject_files.fnamehead)
+	m = mesh_io.read_msh(subject_files.fnamehead)
     except:
-        print("No mesh file found.")
-        return (subname, project, "NoMsh")
+	print("No mesh file found.")
+	return (subname, project, "NoMsh")
     if version > 3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
@@ -76,8 +76,10 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     if "P6" in project:
         # P6 has a spherical ROI, not cortical mask
         msh_file = f"{subject_files.subid}_TDCS_1_scalar.msh"
-
-        mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
+        try:
+            mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
+        except:
+            return (subname, project, "NoMesh")
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         subj_center = mni2subject_coords(ROI_center, subpath)
