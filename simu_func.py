@@ -79,7 +79,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         try:
             mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
         except:
-            return (subname, project, "NoMesh")
+            return (subname, project, "NoMesh")    
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         subj_center = mni2subject_coords(ROI_center, subpath)
