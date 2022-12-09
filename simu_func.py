@@ -34,10 +34,10 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     print(f"Subject {subject_files.subid}")
 
     try:
-	m = mesh_io.read_msh(subject_files.fnamehead)
+        m = mesh_io.read_msh(subject_files.fnamehead)
     except:
-	print("No mesh file found.")
-	return (subname, project, "NoMsh")
+        print("No mesh file found.")
+        return (subname, project, "NoMsh")
     if version > 3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 

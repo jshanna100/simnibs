@@ -24,12 +24,12 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P2_lPCC-new-LH", "P3_lTP-LH",
          None, None, "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
 hemis = ['rh', "lh", "lh", "lh", "lh", "lh", "lh", "lh", None, None, "rh", "lh"]
 
-# projs = ["P5"]
-# masks = ["P5_lM1-LH"]
-# hemis = ["lh"]
+projs = ["P2", "P2-5050", "P6", "P6-3030"]
+masks = ["P2_lPCC-new-LH", "P2_lPCC-new-LH", None, None]
+hemis = ["lh", "lh", None, None]
 
 
-kwargs = {"extract_only":True}
+kwargs = {"extract_only":False}
 
 proj_dicts = [{proj:[mask, hemi]} for proj, mask, hemi in zip(projs, masks,
                                                               hemis)]
