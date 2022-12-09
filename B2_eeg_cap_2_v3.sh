@@ -5,9 +5,9 @@ subjs=("001" "003" "004" "005" "006" "008" "009" "012" "013" "016" "017" "018" "
 dir="/media/Linux5_Data03/hannaj/simnibs"
 #dir="/home/jev/simnibs"
 
-version="4"
+version="3"
 
 for subject in "${subjs[@]}"
 do
-    simnibs_python electrode_warp_2.py -c $dir/simnibs/EEGcap_incl_cheek_buci.csv -o $dir/$version/${subject}/m2m_${subject}/eeg_positions/EEGcap_incl_cheek_buci_2 -s $dir/$version/${subject}/m2m_${subject}
+    /home/hannaj/SimNIBS-3.2/bin/simnibs_python electrode_warp_2_v3.py -c $dir/simnibs/EEGcap_incl_cheek_buci.csv -o $dir/$version/${subject}/m2m_${subject}/eeg_positions/EEGcap_incl_cheek_buci_2 -s $dir/$version/${subject}/m2m_${subject}
 done
