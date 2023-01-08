@@ -10,6 +10,52 @@ from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
 from emp_chandefs import prepare_emp
 
+def emp_coord_out(subj_dict, proj_dict, root_dir):
+    """Simulate previous literature montages"""
+    project, mask, hemi = (list(proj_dict.keys())[0],
+                           *list(proj_dict.values())[0])
+    print(f"\n\n\n{project} {mask} {hemi}\n\n\n")
+    begin_time = perf_counter()
+    subname, subpath = list(subj_dict.keys())[0], list(subj_dict.values())[0]
+    version = int(__version__[0])
+    if version > 3:
+        var_name = 'E_magn'
+        field_name = "magnE"
+    else:
+        var_name = 'E_norm'
+        field_name = "normE"
+    subject_files = SubjectFiles(subpath=subpath)
+    pathfem = os.path.join(root_dir, f"{version}_emp",
+                           f"{subname}_{project}")
+    if os.path.isdir(pathfem) and not extract_only:
+        print("Already exists. Skipping.")
+        return None
+    print(pathfem)
+    print(f"Subject {subject_files.subid}")
+
+    try:
+        m = mesh_io.read_msh(subject_files.fnamehead)
+    except:
+        print("No mesh file found.")
+        return (subname, project, "NoMsh")
+    if version > 3:
+        m = Nx1_stuff.relabel_internal_air(m, subpath)
+
+    S = prepare_emp(project)
+    S.subpath = subpath
+    if "P2" in project or "P6" in project:
+        S.eeg_cap = S.subpath + '/eeg_positions' + '/EEGcap_incl_cheek_buci_2.csv'
+    S.pathfem = pathfem
+    S.map_to_surf = True
+    S.map_to_vol = True
+    S.map_to_fsavg = True
+    S.map_to_MNI = True
+    S.open_in_gmsh = False
+    S.fnamehead = subject_files.fnamehead
+    S.run()
+    breakpoint()
+
+
 def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     """Simulate previous literature montages"""
     project, mask, hemi = (list(proj_dict.keys())[0],
@@ -79,7 +125,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         try:
             mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
         except:
-            return (subname, project, "NoMesh")    
+            return (subname, project, "NoMesh")
         gray_matter = mesh.crop_mesh(2)
         ROI_center = [13, -79, -37]
         subj_center = mni2subject_coords(ROI_center, subpath)
