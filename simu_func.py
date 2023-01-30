@@ -53,8 +53,6 @@ def emp_coord_out(subj_dict, proj_dict, root_dir):
     S.open_in_gmsh = False
     S.fnamehead = subject_files.fnamehead
     S.run()
-    breakpoint()
-
 
 def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
     """Simulate previous literature montages"""
@@ -127,9 +125,9 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         except:
             return (subname, project, "NoMesh")
         gray_matter = mesh.crop_mesh(2)
-        ROI_center = [13, -79, -37]
+        ROI_center = [38, -51, -28]
         subj_center = mni2subject_coords(ROI_center, subpath)
-        rad = 10.
+        rad = 20.
         elm_centers = gray_matter.elements_baricenters()[:]
         roi = np.linalg.norm(elm_centers - subj_center, axis=1) < rad
         elm_vols = gray_matter.elements_volumes_and_areas()[:]
