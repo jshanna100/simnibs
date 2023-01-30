@@ -7,7 +7,7 @@ def prepare_emp(exp, tms=False):
         add_func = sens_list.add_position
     else:
         sens_list = S.add_tdcslist()
-        add_func = S.add_electrode
+        add_func = sens_list.add_electrode
     if exp == "P1":
         sens_list.currents = [1e-3, -1e-3]
         # first electrode
