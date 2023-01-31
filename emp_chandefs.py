@@ -33,24 +33,6 @@ def prepare_emp(exp, tms=False):
         elec1.centre = 'P3'
         elec1.pos_ydir = 'PO7'
         elec1.shape = 'rect'
-        elec1.dimensions = [50, 70]
-        elec1.thickness = 5
-        # second electrode
-        elec2 = add_func()
-        elec2.channelnr = 2
-        elec2.centre = 'Rch'
-        elec2.pos_ydir = 'yRch'
-        elec2.shape = 'rect'
-        elec2.dimensions = [70, 50]
-        elec2.thickness = 5
-    elif exp == "P2-5050":
-        sens_list.currents = [2e-3, -2e-3]
-        # first electrode
-        elec1 = add_func()
-        elec1.channelnr = 1
-        elec1.centre = 'P3'
-        elec1.pos_ydir = 'PO7'
-        elec1.shape = 'rect'
         elec1.dimensions = [50, 50]
         elec1.thickness = 5
         # second electrode
@@ -74,7 +56,7 @@ def prepare_emp(exp, tms=False):
         elec2 = add_func()
         elec2.channelnr = 2
         elec2.centre = 'AF4'
-        elec2.pos_ydir = 'Fp2'
+        elec2.pos_ydir = 'AF3'
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
         elec2.thickness = 5
@@ -91,47 +73,11 @@ def prepare_emp(exp, tms=False):
         elec2 = add_func()
         elec2.channelnr = 2
         elec2.centre = 'AF4'
-        elec2.pos_ydir = 'Fp2'
+        elec2.pos_ydir = 'AF3'
         elec2.shape = 'rect'
         elec2.dimensions = [70, 50]
         elec2.thickness = 5
     elif exp == "P5":
-        sens_list.currents = [1e-3, -1e-3]
-        # first electrode
-        elec1 = add_func()
-        elec1.channelnr = 1
-        elec1.centre = 'C3'
-        elec1.pos_ydir = 'FC3'
-        elec1.shape = 'rect'
-        elec1.dimensions = [50, 70]
-        elec1.thickness = 5
-        # second electrode
-        elec2 = add_func()
-        elec2.channelnr = 2
-        elec2.centre = 'AF4'
-        elec2.pos_ydir = 'Fp2'
-        elec2.shape = 'rect'
-        elec2.dimensions = [70, 50]
-        elec2.thickness = 5
-    elif exp == "P5-2ma":
-        sens_list.currents = [2e-3, -2e-3]
-        # first electrode
-        elec1 = add_func()
-        elec1.channelnr = 1
-        elec1.centre = 'C3'
-        elec1.pos_ydir = 'FC3'
-        elec1.shape = 'rect'
-        elec1.dimensions = [50, 70]
-        elec1.thickness = 5
-        # second electrode
-        elec2 = add_func()
-        elec2.channelnr = 2
-        elec2.centre = 'AF4'
-        elec2.pos_ydir = 'Fp2'
-        elec2.shape = 'rect'
-        elec2.dimensions = [70, 50]
-        elec2.thickness = 5
-    elif exp == "P5-2ma-5050":
         sens_list.currents = [2e-3, -2e-3]
         # first electrode
         elec1 = add_func()
@@ -145,7 +91,7 @@ def prepare_emp(exp, tms=False):
         elec2 = add_func()
         elec2.channelnr = 2
         elec2.centre = 'AF4'
-        elec2.pos_ydir = 'Fp2'
+        elec2.pos_ydir = 'AF3'
         elec2.shape = 'rect'
         elec2.dimensions = [50, 50]
         elec2.thickness = 5
