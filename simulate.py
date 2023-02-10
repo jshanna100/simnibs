@@ -13,7 +13,7 @@ def build_subject_paths(root_dir):
     subjectpaths = []
     subj_dirs = next(os.walk(root_dir))[1]
     for subj_dir in subj_dirs:
-        subjectpaths.append(os.path.join(root_dir, subj_dir, m2m_str))
+        subjectpaths.append(os.path.join(root_dir, subj_dir, f"m2m_{subj_dir}"))
     subj_dict = [{subject_dir:subj_path} for
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
     return subj_dict
@@ -22,6 +22,11 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
          "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
 phis = [35., 90., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
+
+masks = ["P1_rTP-RH"]
+phis = [35.]
+hemis = ['rh']
+
 # mask_dicts contains phis and hemisphere for each ROI
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]
 conditions = ["closest", "optimal"]
@@ -29,10 +34,13 @@ conditions = ["closest", "optimal"]
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-#root_dir = "/home/jev/simnibs/"
+root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 6
+n_jobs = 1
+
+# DELETE LATER
+subj_dicts = [x for x in subj_dicts if list(x.keys())[0]=="022"]
 
 
 print(f"\nVersion {version}\n")
@@ -52,4 +60,4 @@ EL_surround.thickness = [2, 1]  # 2 mm rubber electrodes on top of 1 mm gel laye
 
 queue = list(product(subj_dicts, mask_dicts, conditions)) # all combinations of subjects/masks/condition
 args = [radius_surround, EL_center, EL_surround, root_dir]
-Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue[2:])
+Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue)

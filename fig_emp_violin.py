@@ -27,7 +27,7 @@ df_4["Version"] = ["4"] * len(df_4)
 df = pd.concat([df_3, df_4])
 
 df = df.query("Summary=='ROI_Median'")
-order = ["P1", "P2", "P2-5050", "P3", "P4", "P5", "P5-2ma-5050", "P6", "P6-3030", "P7", "P8"]
+order = ["P1", "P2",  "P3", "P4", "P5", "P7", "P8"]
 facet = sns.catplot(data=df, x="Project", y="Mag", hue="Version", kind="violin",
                     order=order, inner="points")
 facet.axes[0][0].axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
