@@ -13,7 +13,7 @@ def build_subject_paths(root_dir):
     subjectpaths = []
     subj_dirs = next(os.walk(root_dir))[1]
     for subj_dir in subj_dirs:
-        subjectpaths.append(os.path.join(root_dir, subj_dir, m2m_str))
+        subjectpaths.append(os.path.join(root_dir, subj_dir, f"m2m_{subj_dir}"))
     subj_dict = [{subject_dir:subj_path} for
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
     return subj_dict

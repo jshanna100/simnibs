@@ -197,7 +197,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
         m = mesh_io.read_msh(subject_files.fnamehead)
     except:
         print("No mesh file found.")
-        return (subname, project, "NoMeshFound")
+        return (subname, mask, "NoMeshFound")
     if int(__version__[0])>3:
         m = Nx1_stuff.relabel_internal_air(m, subpath)
 
@@ -230,7 +230,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     #######################################
     try:
         Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
-                        current_center, N, radii, [0.],
+                        current_center, N, radii, [phi],
                         EL_center, EL_surround)
 
         m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
