@@ -14,7 +14,7 @@ font = {'weight' : 'bold',
 matplotlib.rc('font', **font)
 
 root_dir = "/home/hannaj/"
-root_dir = "/home/jev/"
+#root_dir = "/home/jev/"
 
 fig_dir = join(root_dir, "simnibs/figures")
 
@@ -29,11 +29,17 @@ df = pd.concat([df_3, df_4])
 df = df.query("Summary=='ROI_Median'")
 order = ["P1", "P2",  "P3", "P4", "P5", "P7", "P8"]
 facet = sns.catplot(data=df, x="Project", y="Mag", hue="Version", kind="violin",
-                    order=order, inner="points")
-facet.axes[0][0].axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
+                    order=order, inner=None)
+facet = sns.stripplot(data=df, x="Project", y="Mag", hue="Version",
+                    order=order, dodge=True, color="black", legend=False)
+facet.axes.axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
                     color="tab:blue", linestyle="--")
-facet.axes[0][0].axhline(df.query("Version=='4' and Summary=='ROI_Median'")["Mag"].mean(),
+facet.axes.axhline(df.query("Version=='4' and Summary=='ROI_Median'")["Mag"].mean(),
                     color="tab:orange", linestyle="--")
 
+# facet = sns.catplot(data=df, x="Project", y="Foc", hue="Version", kind="violin",
+#                     order=order, inner="points")
 facet = sns.catplot(data=df, x="Project", y="Foc", hue="Version", kind="violin",
-                    order=order, inner="points")
+                    order=order, inner=None)
+facet = sns.stripplot(data=df, x="Project", y="Foc", hue="Version",
+                    order=order, dodge=True, color="black", legend=False)
