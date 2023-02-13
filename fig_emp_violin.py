@@ -10,11 +10,13 @@ from scipy.stats import mode
 
 import matplotlib
 font = {'weight' : 'bold',
-        'size'   : 18}
+        'size'   : 28}
 matplotlib.rc('font', **font)
+#sns.set(rc={"figure.figsize":(19.2, 19.2)})
+
 
 root_dir = "/home/hannaj/"
-#root_dir = "/home/jev/"
+root_dir = "/home/jev/"
 
 fig_dir = join(root_dir, "simnibs/figures")
 
@@ -27,19 +29,26 @@ df_4["Version"] = ["4"] * len(df_4)
 df = pd.concat([df_3, df_4])
 
 df = df.query("Summary=='ROI_Median'")
-order = ["P1", "P2",  "P3", "P4", "P5", "P7", "P8"]
-facet = sns.catplot(data=df, x="Project", y="Mag", hue="Version", kind="violin",
-                    order=order, inner=None)
-facet = sns.stripplot(data=df, x="Project", y="Mag", hue="Version",
-                    order=order, dodge=True, color="black", legend=False)
-facet.axes.axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
-                    color="tab:blue", linestyle="--")
-facet.axes.axhline(df.query("Version=='4' and Summary=='ROI_Median'")["Mag"].mean(),
-                    color="tab:orange", linestyle="--")
+order = ["P1", "P2", "P3", "P4", "P5", "P7", "P8"]
 
-# facet = sns.catplot(data=df, x="Project", y="Foc", hue="Version", kind="violin",
-#                     order=order, inner="points")
-facet = sns.catplot(data=df, x="Project", y="Foc", hue="Version", kind="violin",
-                    order=order, inner=None)
-facet = sns.stripplot(data=df, x="Project", y="Foc", hue="Version",
-                    order=order, dodge=True, color="black", legend=False)
+df = df.query("Version=='3'")
+hue_spec = None
+
+dot_size = 18
+mag_fig, mag_ax = plt.subplots(1, 1, figsize=(25.6, 14.4))
+facet = sns.violinplot(data=df, x="Project", y="Mag", hue=hue_spec,
+                    order=order, inner=None, ax=mag_ax)
+facet = sns.stripplot(data=df, x="Project", y="Mag", hue=hue_spec,
+                    order=order, dodge=True, color="black", legend=False,
+                    size=dot_size, ax=mag_ax)
+facet.axes.axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
+                    color="black", linestyle="--")
+mag_fig.savefig(f"{fig_dir}montage_mag_v3only.pdf")
+
+foc_fig, foc_ax = plt.subplots(1, 1, figsize=(25.6, 14.4))
+facet = sns.violinplot(data=df, x="Project", y="Foc", hue=hue_spec,
+                    order=order, inner=None, ax=foc_ax)
+facet = sns.stripplot(data=df, x="Project", y="Foc", hue=hue_spec,
+                    order=order, dodge=True, color="black", legend=False,
+                    size=dot_size//2, ax=foc_ax)
+foc_fig.savefig(f"{fig_dir}montage_foc_v3only.pdf")
