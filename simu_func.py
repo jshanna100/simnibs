@@ -240,7 +240,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
                                             var_name, cutoff)
     except:
         print("Could not process.")
-        return None
+        return (subname, mask, "RunSimusFailed")
 
     best_radius = best_radius[0]
     mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_radii.msh'))
@@ -265,7 +265,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
         mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_final.msh'))
     except:
         print("Could not process.")
-        return None
+        return (subname, mask, "AnalyseSimusFailed")
 
     mdic = {"pos_center": pos_center,
             "radius_surround": radii,

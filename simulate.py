@@ -23,25 +23,22 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
 phis = [35., 90., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
 
-masks = ["P1_rTP-RH"]
-phis = [35.]
-hemis = ['rh']
+# masks = ["P1_rTP-RH"]
+# phis = [90.]
+# hemis = ['rh']
 
 # mask_dicts contains phis and hemisphere for each ROI
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]
 conditions = ["closest", "optimal"]
+#conditions = ["closest"]
 
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-root_dir = "/home/jev/simnibs/"
+#root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 1
-
-# DELETE LATER
-subj_dicts = [x for x in subj_dicts if list(x.keys())[0]=="022"]
-
+n_jobs = 7
 
 print(f"\nVersion {version}\n")
 
@@ -60,4 +57,6 @@ EL_surround.thickness = [2, 1]  # 2 mm rubber electrodes on top of 1 mm gel laye
 
 queue = list(product(subj_dicts, mask_dicts, conditions)) # all combinations of subjects/masks/condition
 args = [radius_surround, EL_center, EL_surround, root_dir]
-Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue)
+results = Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue)
+with open(f"{root_dir}/{version}_results/success_record.pickle", "wb") as f:
+    pickle.dump(results, f)
