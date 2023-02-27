@@ -18,7 +18,7 @@ matplotlib.rc('font', **font)
 root_dir = "/home/hannaj/"
 root_dir = "/home/jev/"
 
-fig_dir = join(root_dir, "simnibs/figures")
+fig_dir = join(root_dir, "simnibs/figures/")
 
 data_dir = join(root_dir, "simnibs/3_emp")
 df_3 = pd.read_pickle(join(data_dir, "df_emp_3.pickle"))
@@ -31,8 +31,8 @@ df = pd.concat([df_3, df_4])
 df = df.query("Summary=='ROI_Median'")
 order = ["P1", "P2", "P3", "P4", "P5", "P7", "P8"]
 
-df = df.query("Version=='3'")
-hue_spec = None
+#df = df.query("Version=='3'")
+hue_spec = "Version"
 
 dot_size = 18
 mag_fig, mag_ax = plt.subplots(1, 1, figsize=(25.6, 14.4))
@@ -42,8 +42,11 @@ facet = sns.stripplot(data=df, x="Project", y="Mag", hue=hue_spec,
                     order=order, dodge=True, color="black", legend=False,
                     size=dot_size, ax=mag_ax)
 facet.axes.axhline(df.query("Version=='3' and Summary=='ROI_Median'")["Mag"].mean(),
-                    color="black", linestyle="--")
-mag_fig.savefig(f"{fig_dir}montage_mag_v3only.pdf")
+                    color="tab:blue", linestyle="--")
+facet.axes.axhline(df.query("Version=='4' and Summary=='ROI_Median'")["Mag"].mean(),
+                    color="tab:orange", linestyle="--")
+plt.title("Montage magnitudes", fontsize=48)
+mag_fig.savefig(f"{fig_dir}montage_mag.pdf")
 
 foc_fig, foc_ax = plt.subplots(1, 1, figsize=(25.6, 14.4))
 facet = sns.violinplot(data=df, x="Project", y="Foc", hue=hue_spec,
@@ -51,4 +54,5 @@ facet = sns.violinplot(data=df, x="Project", y="Foc", hue=hue_spec,
 facet = sns.stripplot(data=df, x="Project", y="Foc", hue=hue_spec,
                     order=order, dodge=True, color="black", legend=False,
                     size=dot_size//2, ax=foc_ax)
-foc_fig.savefig(f"{fig_dir}montage_foc_v3only.pdf")
+plt.title("Montage focalities", fontsize=48)
+foc_fig.savefig(f"{fig_dir}montage_png.pdf")

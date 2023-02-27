@@ -22,9 +22,9 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P3_lTP-LH",
          "P8_lDLPFC-LH"]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
 
-# projs = ["P2", "P2-5050", "P6", "P6-3030"]
-# masks = ["P2_lPCC-new-LH", "P2_lPCC-new-LH", None, None]
-# hemis = ["lh", "lh", None, None]
+projs = ["DO22_test"]
+masks = [None]
+hemis = [None]
 
 
 kwargs = {"extract_only":False}
@@ -32,12 +32,13 @@ kwargs = {"extract_only":False}
 proj_dicts = [{proj:[mask, hemi]} for proj, mask, hemi in zip(projs, masks,
                                                               hemis)]
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
+root_dir = "/home/jev/temp/"
 #root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 6
+n_jobs = 1
 queue = list(product(subj_dicts, proj_dicts))
 results = Parallel(n_jobs=n_jobs)(delayed(emp_montage)(*q, root_dir, **kwargs) for q in queue)
 results = [r for r in results if r is not None]
-with open(f"{root_dir}/{version}_emp/success_record.pickle", "wb") as f:
-    pickle.dump(results, f)
+# with open(f"{root_dir}/{version}_emp/success_record.pickle", "wb") as f:
+#     pickle.dump(results, f)

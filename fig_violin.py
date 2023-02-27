@@ -64,7 +64,10 @@ best_vals = pd.DataFrame.from_dict(best_vals)
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Condition", ax=ax,
-               inner=inner)
+               inner=None)
+sns.stripplot(data=best_vals, x="Project", y="Mags", hue="Condition", ax=ax,
+              dodge=True, color="black", legend=False)
+
 plt.axhline(0.2, linestyle="--", color="gray")
 ax.set_title("Magnitude: V4 - Closest vs Optimal", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
@@ -72,19 +75,21 @@ ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
 ax.set_ylabel("Magnitude", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v['closest']}/{v['optimal']})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, f"Mag_ClosestOptimal_violin_{inner}.png"))
+plt.savefig(join(fig_dir, f"Mag_ClosestOptimal_violin_{inner}.pdf"))
 
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Condition", ax=ax,
-               inner=inner)
+               inner=None)
+sns.stripplot(data=best_vals, x="Project", y="Focs", hue="Condition", ax=ax,
+              dodge=True, color="black", legend=False)
 ax.set_title("Focality: V4 - Closest vs Optimal", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (closest/optimal best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Focality", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v['closest']}/{v['optimal']})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, f"Foc_ClosestOptimal_violin_{inner}.png"))
+plt.savefig(join(fig_dir, f"Foc_ClosestOptimal_violin_{inner}.pdf"))
 
 # closest: 3 vs 4
 best_radii = {}
@@ -120,6 +125,8 @@ best_vals = pd.DataFrame.from_dict(best_vals)
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Mags", hue="Version", ax=ax,
                inner=inner)
+sns.stripplot(data=best_vals, x="Project", y="Mags", hue="Version", ax=ax,
+              dodge=True, color="black", legend=False)
 plt.axhline(0.2, linestyle="--", color="gray")
 ax.set_title("Magnitude: Closest - v3 vs. v4", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
@@ -127,19 +134,21 @@ ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
 ax.set_ylabel("Magnitude", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v[3]}/{v[4]})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, f"Mag_3vs4_violin_{inner}.png"))
+plt.savefig(join(fig_dir, f"Mag_3vs4_violin_{inner}.pdf"))
 
 
 fig, ax = plt.subplots(1, figsize=(38.4, 8))
 sns.violinplot(data=best_vals, x="Project", y="Focs", hue="Version", ax=ax,
                inner=inner)
+sns.stripplot(data=best_vals, x="Project", y="Focs", hue="Version", ax=ax,
+              dodge=True, color="black", legend=False)
 ax.set_title("Focality: Closest - v3 vs. v4", fontsize=24, fontweight="bold")
 ax.set_xlabel("Project (3/4 best radius)", fontsize=24,
               fontweight="bold")
 ax.set_ylabel("Focality", fontsize=24, fontweight="bold")
 ax.set_xticklabels([f"{k} ({v[3]}/{v[4]})"
                     for k, v in best_radii.items()])
-plt.savefig(join(fig_dir, f"Foc_3vs4_violin_{inner}.png"))
+plt.savefig(join(fig_dir, f"Foc_3vs4_violin_{inner}.pdf"))
 
 
 df.to_excel(join(fig_dir, "simnibs_3vs4.xlsx"))

@@ -4,7 +4,6 @@ import shutil
 from scipy.io import savemat
 from time import perf_counter
 from datetime import timedelta
-
 from simnibs import __version__, sim_struct, mesh_io, mni2subject_coords
 from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
@@ -142,6 +141,8 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
             mesh_io.write_msh(gray_matter, os.path.join(S.pathfem,
                                                         "results.msh"))
         pos_center = subj_center
+    elif project == "DO22_test":
+        return (subname, project, "Pass")
     else:
         msh_file = f"{subject_files.subid}_TDCS_1_scalar_central.msh"
         m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)

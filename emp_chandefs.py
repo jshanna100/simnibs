@@ -160,5 +160,25 @@ def prepare_emp(exp, tms=False):
             elec.dimensions = [10, 10]
             elec.thickness = 5
             elec.centre = centre
+    elif exp == "DO22_test":
+        sens_list.currents = [1e-3, -1e-3]
+        # first electrode
+        elec1 = add_func()
+        elec1.channelnr = 1
+        elec1.centre = 'F3'
+        elec1.pos_ydir = 'C3'
+        elec1.shape = 'rect'
+        elec1.dimensions = [50, 70]
+        elec1.thickness = [1, 3, 1]
+        elec1.dimensions_sponge = [50, 70]
+        # second electrode
+        elec2 = add_func()
+        elec2.channelnr = 2
+        elec2.centre = 'AF4'
+        elec2.pos_ydir = 'Fp2'
+        elec2.shape = 'rect'
+        elec2.dimensions = [50, 70]
+        elec2.thickness = [1, 3, 1]
+        elec2.dimensions_sponge = [50, 70]
 
     return S
