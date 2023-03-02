@@ -1,0 +1,6 @@
+P1:
+  radius: 30
+  phi: 35
+  hemi: lh
+  mask:
+  algo: "closest"

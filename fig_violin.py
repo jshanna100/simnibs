@@ -26,6 +26,8 @@ df_4 = pd.read_pickle(join(data_dir, "df_4.pickle"))
 df_4["Version"] = ["4"] * len(df_4)
 df = pd.concat([df_3, df_4])
 
+breakpoint()
+
 projects = np.sort(df["Project"].unique())
 
 inner = "points"
