@@ -14,6 +14,10 @@ algos = ["closest"]
 
 overwrite = False
 
+radius_surround = list(np.arange(30, 100, 10))
+p_rads = [30, 60, 40, 50, 50, 50, 40]
+p_rad_inds = [radius_surround.index(pr) for pr in p_rads]
+
 # get subject names
 subjs = os.listdir(f"{root_dir}4/")
 
@@ -28,10 +32,10 @@ for subj in subjs:
                                  figsize=(38.4, 12.))
         for mask_idx, mask in enumerate(masks):
             for alg_idx, alg in enumerate(algos):
-                subj_dir = f"{res_dir}{mask}__{subj}__{alg}/final/"
+                subj_dir = f"{res_dir}{mask}__{subj}__{alg}/radius/"
                 # load mesh
-                mesh = pv.read(f"{subj_dir}{subj}_TDCS_1_scalar.msh")
-
+                mesh = pv.read(f"{subj_dir}{subj}_TDCS_{p_rad_inds[mask_idx]+1}_scalar.msh")
+                print(f"Project {mask}, Radius: {p_rads[mask_idx]}, {p_rad_inds[mask_idx]+1}")
                 mag_image = mag_plot(mesh, cam_dist=cam_dist)
                 axes[alg_idx*len(algos)+2, mask_idx].imshow(mag_image)
                 axes[alg_idx*len(algos)+2, mask_idx].axis("off")
