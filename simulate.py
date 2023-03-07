@@ -59,6 +59,7 @@ EL_surround.thickness = [2, 1]  # 2 mm rubber electrodes on top of 1 mm gel laye
 
 queue = list(product(subj_dicts, mask_dicts, conditions)) # all combinations of subjects/masks/condition
 args = [radius_surround, EL_center, EL_surround, root_dir]
-results = Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args) for q in queue)
+kwargs = {"bone_change":True}
+results = Parallel(n_jobs=n_jobs)(delayed(rad_only)(*q, *args, **kwargs) for q in queue)
 with open(f"{root_dir}/{version}_results/success_record.pickle", "wb") as f:
     pickle.dump(results, f)

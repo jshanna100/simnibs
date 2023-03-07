@@ -174,7 +174,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
 
 def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
              EL_surround, root_dir, N=3, cutoff=.1,
-             multichannel=True, current_center=0.002):
+             multichannel=True, current_center=0.002, bone_change=False):
     """Simulate with variable radius montages"""
     begin_time = perf_counter()
     subname, subpath = list(subj_dict.keys())[0], list(subj_dict.values())[0]
@@ -186,8 +186,12 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
         var_name = 'E_norm'
 
     subject_files = SubjectFiles(subpath=subpath)
-    pathfem = os.path.join(root_dir, f"{version}_results",
-                           f"{mask}__{subname}__{condition}")
+    if bone_change:
+        pathfem = os.path.join(root_dir, f"{version}_results",
+                               f"{mask}__{subname}__{condition}_bone")
+    else:
+        pathfem = os.path.join(root_dir, f"{version}_results",
+                               f"{mask}__{subname}__{condition}")
     if os.path.isdir(pathfem):
         print("Already exists. Skipping.")
         return ()
@@ -226,13 +230,12 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
                                                name=('center'))
     mesh_io.write_msh(m, os.path.join(pathfem, 'mesh_with_ROI.msh'))
 
-
     ###  RUN SIMULATIONS FOR VARIING RADII
     #######################################
     try:
         Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
                         current_center, N, radii, [phi],
-                        EL_center, EL_surround)
+                        EL_center, EL_surround, bone_change=bone_change)
 
         m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
                                             os.path.join(pathfem,'radius'),
@@ -256,7 +259,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     try:
         Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'final'),
                             current_center, N, [best_radius], [phi],
-                            EL_center, EL_surround)
+                            EL_center, EL_surround, bone_change)
 
         m_surf, roi_median_f, focality_f, _ = Nx1_stuff.analyse_simus(subpath,
                                                 os.path.join(pathfem,'final'),
