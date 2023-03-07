@@ -31,16 +31,16 @@ hemis = ['rh']
 # mask_dicts contains phis and hemisphere for each ROI
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]
 conditions = ["closest", "optimal"]
-#conditions = ["closest"]
+conditions = ["closest"]
 
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 root_dir = "/home/jev/temp/"
-#root_dir = "/home/jev/simnibs/"
+root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 22
+n_jobs = 1
 
 print(f"\nVersion {version}\n")
 

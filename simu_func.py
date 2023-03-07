@@ -205,13 +205,13 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     # convert mask to individual space (on central surface)
     mask_path = os.path.join(root_dir, "ROI", mask)
     _, mask_pos = Nx1_stuff.convert_mask(mask_path, hemi, subpath)
+    # project mask positions to pial surface of tet mesh
+    # and relabel corresponding GM triangles
+    m = Nx1_stuff.project_to_pial(mask_pos, m)
     if condition == 'closest':
         # use skin position closest to CoG of mask
         pos_center = Nx1_stuff.get_closest_skin_pos(mask_pos, m)
     else:
-    	# project mask positions to pial surface of tet mesh
-    	# and relabel corresponding GM triangles
-    	m = Nx1_stuff.project_to_pial(mask_pos, m)
     	# solve FEM to get optimal position on skin
     	# with lowest ohmic ressitance to mask
     	m, pos_center = Nx1_stuff.get_optimal_center_pos(m)
@@ -224,7 +224,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     mesh_io.write_geo_spheres([pos_center],
                                   os.path.join(pathfem,'mesh_with_ROI.geo'),
                                                name=('center'))
-    mesh_io.write_msh(m, os.path.join(pathfem,'mesh_with_ROI.msh'))
+    mesh_io.write_msh(m, os.path.join(pathfem, 'mesh_with_ROI.msh'))
 
 
     ###  RUN SIMULATIONS FOR VARIING RADII

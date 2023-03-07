@@ -528,7 +528,7 @@ def get_central_gm_with_mask(subpath, hemi, fn_mask_fsspace):
        idx_mask = np.hstack((np.zeros(nr_nodes_lh,dtype=bool), idx_mask))
 
     nd=mesh_io.NodeData(idx_mask)
-    m_surf.add_node_field(nd,fn_mask_fsspace)
+    m_surf.add_node_field(nd, fn_mask_fsspace)
     return m_surf
 
 
