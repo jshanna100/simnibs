@@ -97,6 +97,7 @@ def mag_plot(mesh, foc="elec", cam_dist=200, clim=[0., .6], return_foc=False):
     plotter.camera.position = pos
 
     image = plotter.screenshot(None, return_img=True)
+    plotter.close()
     if return_foc:
         return image, foc
     else:
