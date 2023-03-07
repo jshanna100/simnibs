@@ -23,6 +23,7 @@ for subj in subjs:
     outfile = f"{fig_dir}{subj}_magn.pdf"
     if f"{subj}_magn.pdf" in os.listdir(fig_dir) and not overwrite:
         print(f"{outfile} already exists. Skipping...")
+        continue
     try:
         fig, axes = plt.subplots(len(algos)*2+1, len(masks),
                                  figsize=(38.4, 12.))
