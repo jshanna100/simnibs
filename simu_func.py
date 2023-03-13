@@ -209,6 +209,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     # convert mask to individual space (on central surface)
     mask_path = os.path.join(root_dir, "ROI", mask)
     _, mask_pos = Nx1_stuff.convert_mask(mask_path, hemi, subpath)
+    breakpoint()
     # project mask positions to pial surface of tet mesh
     # and relabel corresponding GM triangles
     m = Nx1_stuff.project_to_pial(mask_pos, m)

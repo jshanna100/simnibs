@@ -4,6 +4,8 @@ import os
 
 masks = ["P1_rTP-RH", "P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
          "P7_rDLPFCnew-RH", "P8_lDLPFC-LH"]
+
+# detect whether running in HGW or Berlin
 if os.path.isdir("/home/hannaj"):
     root_dir = "/home/hannaj/simnibs/"
 else:
@@ -37,15 +39,18 @@ for subj in subjs:
                 # load mesh
                 mesh = pv.read(f"{subj_dir}{subj}_TDCS_{p_rad_inds[mask_idx]+1}_scalar.msh")
                 print(f"Project {mask}, Radius: {p_rads[mask_idx]}, {p_rad_inds[mask_idx]+1}")
+                # plot fields
                 mag_image = mag_plot(mesh, cam_dist=cam_dist)
                 axes[alg_idx*len(algos)+2, mask_idx].imshow(mag_image)
                 axes[alg_idx*len(algos)+2, mask_idx].axis("off")
 
+                # plot electrodes
                 elec_image, foc = elec_plot(mesh, return_foc=True,
                                             cam_dist=cam_dist)
                 axes[alg_idx*2+1, mask_idx].imshow(elec_image)
                 axes[alg_idx*2+1, mask_idx].axis("off")
 
+            # plot ROI
             roi_dir = f"{res_dir}{mask}__{subj}__closest/"
             roi_mesh = pv.read(f"{roi_dir}results_final.msh")
             roi_image = roi_plot(roi_mesh, foc=foc, cam_dist=cam_dist)

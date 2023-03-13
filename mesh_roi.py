@@ -30,15 +30,15 @@ def _map_rois(roi_path, sub_path, rois):
     return transformed_data
 
 
-seg_path = "/home/oulap/experiments/jev/"
-subject_path = "/home/oulap/experiments/m2m_ernie/"
+seg_path = "/home/jev/simnibs/ROI/"
+subject_path = "/home/jev/simnibs/4/001/m2m_001/"
 
 rois = [
-    "roi.nii.gz",
+    "P6.nii.gz",
 ]
 
 roi_seg = _map_rois(seg_path, subject_path, rois)
-
+breakpoint()
 # Write the segmentation to disk
 im_tmp = nib.load(os.path.join(subject_path, "T1.nii.gz"))
 im_seg = nib.Nifti1Image(roi_seg.astype(float), im_tmp.affine)
@@ -89,4 +89,4 @@ new_mesh = create_mesh(
     sizing_field=None,
 )
 
-write_msh(new_mesh, os.path.join(subject_path, "mesh_with_roi.msh"))
+write_msh(new_mesh, os.path.join(subject_path, "mesh_with_cereb_roi.msh"))
