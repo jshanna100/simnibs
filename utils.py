@@ -33,6 +33,49 @@ def read_curv(fn):
             curv = np.fromfile(f, np.dtype('>f'), magic) / 100.
     return curv
 
+def elec_plot_emp(mesh, cam_dist=200, return_foc=False, P8=False,
+                  foc_elec="anode"):
+    # renderer
+    plotter = pv.Plotter(off_screen=True)
+
+    # get scalp
+    scalp_inds = np.where(mesh.cell_data["gmsh:physical"]==5)[0]
+    scalp_cells = mesh.extract_cells(scalp_inds)
+    plotter.add_mesh(scalp_cells, color=[.7, .5, .5])
+
+    # get electrodes
+    anode_inds = np.where(mesh.cell_data["gmsh:physical"]==1501)[0]
+    anode_cells = mesh.extract_cells(anode_inds)
+    plotter.add_mesh(anode_cells, color="red")
+    if P8:
+        for idx in range(1502, 1506):
+            cathode_inds = np.where(mesh.cell_data["gmsh:physical"]==idx)[0]
+            cathode_cells = mesh.extract_cells(cathode_inds)
+            plotter.add_mesh(cathode_cells, color="blue")
+    else:
+        cathode_inds = np.where(mesh.cell_data["gmsh:physical"]==1502)[0]
+        cathode_cells = mesh.extract_cells(cathode_inds)
+        plotter.add_mesh(cathode_cells, color="blue")
+
+    # camera work
+    # centre point of this electrode for focal point
+    if foc_elec == "anode":
+        foc = anode_cells.cell_centers().points.mean(axis=0)
+    else:
+        foc = cathode_cells.cell_centers().points.mean(axis=0)
+    plotter.camera.focal_point = foc
+    # normed vector from origin to focal point
+    norm_vec = foc / np.linalg.norm(foc)
+    pos = foc + norm_vec * cam_dist
+    plotter.camera.position = pos
+
+    image = plotter.screenshot(None, return_img=True)
+    if return_foc:
+        return image, foc
+    else:
+        return image
+
+
 def elec_plot(mesh, cam_dist=200, return_foc=False):
     # renderer
     plotter = pv.Plotter(off_screen=True)
@@ -88,6 +131,10 @@ def mag_plot(mesh, foc="elec", cam_dist=200, clim=[0., .6], return_foc=False):
         centre_inds = np.where(mesh.cell_data["gmsh:physical"]==101)[0]
         centre_cells = mesh.extract_cells(centre_inds)
         foc = centre_cells.cell_centers().points.mean(axis=0)
+    elif foc == "elec_emp":
+        anode_inds = np.where(mesh.cell_data["gmsh:physical"]==1501)[0]
+        anode_cells = mesh.extract_cells(anode_inds)
+        foc = anode_cells.cell_centers().points.mean(axis=0)
 
     # centre point of this electrode for focal point
     plotter.camera.focal_point = foc
@@ -97,7 +144,7 @@ def mag_plot(mesh, foc="elec", cam_dist=200, clim=[0., .6], return_foc=False):
     plotter.camera.position = pos
 
     image = plotter.screenshot(None, return_img=True)
-    plotter.close()
+    plotter.close
     if return_foc:
         return image, foc
     else:

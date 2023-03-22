@@ -16,15 +16,15 @@ def build_subject_paths(root_dir):
 
 version = int(__version__[0])
 
-projs = ["P1", "P2", "P3", "P4", "P5", "P7", "P8"]
+projs = ["P1", "P2", "P3", "P4", "P5", "P6", "P6", "P7", "P8"]
 masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P3_lTP-LH",
-         "P4_lIFG-LH", "P5_lM1-LH", "P7_rDLPFCnew-RH",
+         "P4_lIFG-LH", "P5_lM1-LH", None, "P7_rDLPFCnew-RH",
          "P8_lDLPFC-LH"]
-hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
+hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
 
-projs = ["DO22_test"]
-masks = [None]
-hemis = [None]
+# projs = ["P8"]
+# masks = ["P8_lDLPFC-LH"]
+# hemis = ["lh"]
 
 
 kwargs = {"extract_only":False}
@@ -32,13 +32,13 @@ kwargs = {"extract_only":False}
 proj_dicts = [{proj:[mask, hemi]} for proj, mask, hemi in zip(projs, masks,
                                                               hemis)]
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-root_dir = "/home/jev/temp/"
-#root_dir = "/home/jev/simnibs/"
+# root_dir = "/home/jev/temp/"
+# root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 1
+n_jobs = 8
 queue = list(product(subj_dicts, proj_dicts))
 results = Parallel(n_jobs=n_jobs)(delayed(emp_montage)(*q, root_dir, **kwargs) for q in queue)
 results = [r for r in results if r is not None]
-# with open(f"{root_dir}/{version}_emp/success_record.pickle", "wb") as f:
-#     pickle.dump(results, f)
+with open(f"{root_dir}/{version}_emp/success_record.pickle", "wb") as f:
+    pickle.dump(results, f)

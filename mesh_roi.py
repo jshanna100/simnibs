@@ -31,14 +31,13 @@ def _map_rois(roi_path, sub_path, rois):
 
 
 seg_path = "/home/jev/simnibs/ROI/"
-subject_path = "/home/jev/simnibs/4/001/m2m_001/"
+subject_path = "/home/jev/simnibs/4/005/m2m_005/"
 
 rois = [
     "P6.nii.gz",
 ]
 
 roi_seg = _map_rois(seg_path, subject_path, rois)
-breakpoint()
 # Write the segmentation to disk
 im_tmp = nib.load(os.path.join(subject_path, "T1.nii.gz"))
 im_seg = nib.Nifti1Image(roi_seg.astype(float), im_tmp.affine)
