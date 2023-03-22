@@ -520,7 +520,14 @@ def get_central_gm_with_mask(subpath, hemi, fn_mask_fsspace):
     m_surf = m_surf.join_mesh(m_rh)
     m_surf.elm.tag2[:] = m_surf.elm.tag1
 
-    idx_mask, _ = convert_mask(fn_mask_fsspace, hemi, subpath)
+    if fn_mask_fsspace == "P6":
+        # cerebellum
+        c_msh = mesh_io.read_msh(os.path.join(subpath,
+                                              "mesh_with_cereb_roi.msh"))
+        idx_mask = c_msh.elm.tag1 == 51
+    else:
+        # cortex
+        idx_mask, _ = convert_mask(fn_mask_fsspace, hemi, subpath)
 
     if hemi == 'lh':
        idx_mask = np.hstack((idx_mask, np.zeros(nr_nodes_rh,dtype=bool)))
