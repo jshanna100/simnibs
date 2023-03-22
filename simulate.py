@@ -24,9 +24,9 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH",  "P3_lTP-LH", "P4_lIFG-LH", "P5_lM1-LH",
 phis = [35., 90., 90., 75., 90., 30., 75.]
 hemis = ['rh', "lh", "lh", "lh", "lh", "rh", "lh"]
 
-masks = ["P1_rTP-RH"]
-phis = [90.]
-hemis = ['rh']
+#masks = ["P1_rTP-RH"]
+#phis = [90.]
+#hemis = ['rh']
 
 # mask_dicts contains phis and hemisphere for each ROI
 mask_dicts = [{mask:[phi, hemi]} for mask, phi, hemi in zip(masks, phis, hemis)]

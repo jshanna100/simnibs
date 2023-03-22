@@ -5,18 +5,18 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 plt.ion()
 
-root_dir = "/home/jev/"
+root_dir = "/home/hannaj/"
 
-filepath_3 = join(root_dir, "simnibs", "3_emp", "success_record.pickle")
-filepath_4 = join(root_dir, "simnibs", "4_emp", "success_record.pickle")
+filepath_3 = join(root_dir, "simnibs", "3_results", "success_record.pickle")
+filepath_4 = join(root_dir, "simnibs", "4_results", "success_record.pickle")
 
-with open(filepath_3, "rb") as f:
-    res_3 = pickle.load(f)
+#with open(filepath_3, "rb") as f:
+#    res_3 = pickle.load(f)
 with open(filepath_4, "rb") as f:
     res_4 = pickle.load(f)
 
 dfs = {}
-for res_name, res in zip(["3", "4"], [res_3, res_4]):
+for res_name, res in zip(["4"], [res_4]):
     df_dict = {"Subj":[], "Proj":[], "Result":[]}
     for r in res:
         df_dict["Subj"].append(r[0])
