@@ -16,7 +16,7 @@ def build_subject_paths(root_dir):
 
 version = int(__version__[0])
 
-projs = ["P1", "P2", "P3", "P4", "P5", "P6", "P6", "P7", "P8"]
+projs = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
 masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P3_lTP-LH",
          "P4_lIFG-LH", "P5_lM1-LH", None, "P7_rDLPFCnew-RH",
          "P8_lDLPFC-LH"]
