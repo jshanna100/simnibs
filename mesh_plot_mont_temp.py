@@ -17,19 +17,19 @@ overwrite = False
 subjs = os.listdir(f"{root_dir}")
 
 cam_dist = 400
-
+fig_count = 0
+fig_sub_idx = 0
 for subj_idx, subj in enumerate(subjs):
     outfile = f"{fig_dir}{subj}_magn.pdf"
     if f"{subj}_magn.pdf" in os.listdir(fig_dir) and not overwrite:
         print(f"{outfile} already exists. Skipping...")
         continue
-    if "TS3_MCI" not in subj:
+    if "TS3-MCI" not in subj:
         continue
-    fig_sub_idx = subj_idx % 8
-    if fig_subj_idx % 8 == 0:
+    if fig_sub_idx == 0:
         fig, axes = plt.subplots(3, 8, figsize=(38.4, 12.))
     # load mesh
-    mesh = pv.read(f"{root_dir}{subj}{subj}_TDCS_1_scalar.msh")
+    mesh = pv.read(f"{root_dir}{subj}/simu_F3-AF4_5x7/{subj}_TDCS_1_scalar.msh")
     # plot fields
     mag_image = mag_plot(mesh, cam_dist=cam_dist, foc="elec_emp")
     axes[2, fig_sub_idx].imshow(mag_image)
@@ -47,14 +47,14 @@ for subj_idx, subj in enumerate(subjs):
     axes[1, fig_sub_idx].axis("off")
 
     # text
-    trans = axes[0, proj_idx].transAxes
-    axes[0, fig_sub_idx].text(0.8, 0.1, project, fontsize=36,
+    trans = axes[0, fig_sub_idx].transAxes
+    axes[0, fig_sub_idx].text(0.1, 0.8, subj[-3:], fontsize=36,
                            transform=trans)
+    fig_sub_idx += 1
 
-    trans = axes[0, 0].transAxes
-    axes[0, 0].text(0.005, 0.8, subj, fontsize=58, transform=trans)
-
-    if fig_subj_idx == 7 or subj_idx:
+    if fig_sub_idx == 7 or (subj_idx==len(subj)-1):
         plt.tight_layout()
-        plt.savefig(f"{fig_dir}{subj}_magn.pdf")
+        plt.savefig(f"{fig_dir}{fig_count}_magn.pdf")
         plt.close()
+        fig_count += 1
+        fig_sub_idx = 0
