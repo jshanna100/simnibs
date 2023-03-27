@@ -29,7 +29,7 @@ for subj_idx, subj in enumerate(subjs):
     if fig_subj_idx % 8 == 0:
         fig, axes = plt.subplots(3, 8, figsize=(38.4, 12.))
     # load mesh
-    mesh = pv.read(f"{root_dir}{subj}/{subj}_TDCS_1_scalar.msh")
+    mesh = pv.read(f"{root_dir}{subj}{subj}_TDCS_1_scalar.msh")
     # plot fields
     mag_image = mag_plot(mesh, cam_dist=cam_dist, foc="elec_emp")
     axes[2, fig_sub_idx].imshow(mag_image)
