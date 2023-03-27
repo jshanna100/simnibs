@@ -10,11 +10,11 @@ import Nx1_stuff
 from simu_func import rad_only
 import pickle
 
-def build_subject_paths(root_dir):
+def build_subject_paths(targ_dir):
     subjectpaths = []
-    subj_dirs = next(os.walk(root_dir))[1]
+    subj_dirs = next(os.walk(targ_dir))[1]
     for subj_dir in subj_dirs:
-        subjectpaths.append(os.path.join(root_dir, subj_dir, f"m2m_{subj_dir}"))
+        subjectpaths.append(os.path.join(targ_dir, subj_dir, f"m2m_{subj_dir}"))
     subj_dict = [{subject_dir:subj_path} for
                  subj_path, subject_dir in zip(subjectpaths, subj_dirs)]
     return subj_dict
@@ -32,11 +32,11 @@ conditions = ["closest"]
 version = int(__version__[0])
 
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-root_dir = "/home/jev/temp/"
-root_dir = "/home/jev/simnibs/"
+root_dir = "/home/jev/temp/MeMoSlap/"
+#root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 1
+n_jobs = 8
 
 print(f"\nVersion {version}\n")
 
