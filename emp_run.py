@@ -22,9 +22,9 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P3_lTP-LH",
          "P8_lDLPFC-LH"]
 hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
 
-# projs = ["P8"]
-# masks = ["P8_lDLPFC-LH"]
-# hemis = ["lh"]
+projs = ["P2", "P6"]
+masks = ["P2_lPCC-new-LH", None]
+hemis = ["lh", None]
 
 
 kwargs = {"extract_only":False}
