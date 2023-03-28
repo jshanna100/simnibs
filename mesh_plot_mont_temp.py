@@ -20,10 +20,6 @@ cam_dist = 400
 fig_count = 0
 fig_sub_idx = 0
 for subj_idx, subj in enumerate(subjs):
-    outfile = f"{fig_dir}{subj}_magn.pdf"
-    if f"{subj}_magn.pdf" in os.listdir(fig_dir) and not overwrite:
-        print(f"{outfile} already exists. Skipping...")
-        continue
     if "TS3-MCI" not in subj:
         continue
     if fig_sub_idx == 0:
@@ -52,7 +48,7 @@ for subj_idx, subj in enumerate(subjs):
                            transform=trans)
     fig_sub_idx += 1
 
-    if fig_sub_idx == 7 or (subj_idx==len(subj)-1):
+    if fig_sub_idx == 8 or (subj_idx==(len(subjs)-1)):
         plt.tight_layout()
         plt.savefig(f"{fig_dir}{fig_count}_magn.pdf")
         plt.close()
