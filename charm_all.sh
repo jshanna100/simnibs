@@ -10,6 +10,6 @@ for subj in "${subjs[@]}"
 do
     echo "$subj"
     cd "$orig_dir""$subj"
-    charm $subj T1w.nii.gz T2w.nii.gz --forcerun --forceqform
+    charm $subj T1.nii T2.nii --forcerun --forceqform
 done
 cd "$orig_dir"

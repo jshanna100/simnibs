@@ -38,7 +38,7 @@ def emp_coord_out(subj_dict, proj_dict, root_dir):
         print("No mesh file found.")
         return (subname, project, "NoMsh")
     if version > 3:
-        m = Nx1_stuff.relabel_internal_air(m, subpath)
+        m = Nx1_stuff.relabel_internal_air(m)
 
     S = prepare_emp(project)
     S.subpath = subpath
@@ -82,7 +82,7 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         print("No mesh file found.")
         return (subname, project, "NoMsh")
     if version > 3:
-        m = Nx1_stuff.relabel_internal_air(m, subpath)
+        m = Nx1_stuff.relabel_internal_air(m)
 
     if mask:
         mask_path = os.path.join(root_dir, "ROI", mask)
@@ -204,7 +204,7 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
         print("No mesh file found.")
         return (subname, mask, "NoMeshFound")
     if int(__version__[0])>3:
-        m = Nx1_stuff.relabel_internal_air(m, subpath)
+        m = Nx1_stuff.relabel_internal_air(m)
 
     # convert mask to individual space (on central surface)
     # cerebellum
@@ -228,7 +228,6 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
     	# with lowest ohmic ressitance to mask
     	m, pos_center = Nx1_stuff.get_optimal_center_pos(m)
     EL_center.centre = pos_center
-    breakpoint()
     # write out mesh with ROI and position of central electrode as control
     pathfem = os.path.abspath(os.path.expanduser(pathfem))
     if not os.path.isdir(pathfem):
@@ -240,19 +239,19 @@ def rad_only(subj_dict, mask_dict, condition, radii, EL_center,
 
     ###  RUN SIMULATIONS FOR VARIING RADII
     #######################################
-    #try:
-    Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
-                    current_center, N, radii, [phi],
-                    EL_center, EL_surround, bone_change=bone_change)
+    try:
+        Nx1_stuff.run_simus(subpath, os.path.join(pathfem,'radius'),
+                        current_center, N, radii, [phi],
+                        EL_center, EL_surround, bone_change=bone_change)
 
-    m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
-                                        os.path.join(pathfem,'radius'),
-                                        hemi, mask_path,
-                                        radii, [phi],
-                                        var_name, cutoff)
-    # except:
-    #     print("Could not process.")
-    #     return (subname, mask, "RunSimusFailed")
+        m_surf, roi_median_r, focality_r, best_radius = Nx1_stuff.analyse_simus(subpath,
+                                            os.path.join(pathfem,'radius'),
+                                            hemi, mask_path,
+                                            radii, [phi],
+                                            var_name, cutoff)
+    except:
+        print("Could not process.")
+        return (subname, mask, "RunSimusFailed")
 
     best_radius = best_radius[0]
     mesh_io.write_msh(m_surf,os.path.join(pathfem,'results_radii.msh'))

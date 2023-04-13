@@ -11,7 +11,7 @@ import numpy as np
 import scipy.ndimage.morphology as mrph
 import os
 import re
-from glob import glob
+from glob import glob, escape
 
 from simnibs import mesh_io, sim_struct, __version__
 from simnibs.simulation import cond, fem
@@ -391,10 +391,17 @@ def convert_mask(fn_mask_fsspace, hemi, subpath):
             fn_reg = subject_files.rh_reg
             fn_central = subject_files.rh_midgm
 
-    idx_mask = nib.freesurfer.io.read_morph_data(fn_mask_fsspace)
+    surf_sphere = mesh_io.read_gifti_surface(fn_sphere)
+    try:
+        idx = nib.freesurfer.io.read_label(fn_mask_fsspace)
+        idx_mask = np.zeros(surf_sphere.nodes.nr, dtype=np.float32)
+        idx_mask[idx] = 1.
+    except:
+        idx_mask = nib.freesurfer.io.read_morph_data(fn_mask_fsspace)
+
     idx_mask, _ = transformations._surf2surf(
                 idx_mask,
-                mesh_io.read_gifti_surface(fn_sphere),
+                surf_sphere,
                 mesh_io.read_gifti_surface(fn_reg)
                 )
     idx_mask = idx_mask > 0.0001
@@ -402,6 +409,46 @@ def convert_mask(fn_mask_fsspace, hemi, subpath):
     central_pos = gm_surf.nodes[idx_mask]
 
     return idx_mask, central_pos
+
+
+def ROI_from_nifti(m, fn_ROI, ROI_shift):
+    ''' get a ROI from a nifti file and project on GM surface of mesh
+    '''
+    gm_label = 1002
+    m_GMsurf = m.crop_mesh(tags=gm_label)
+    m_GMsurf = m_GMsurf.crop_mesh(elm_type=2)
+    m_GMsurf.nodes.node_coord -= ROI_shift*m_GMsurf.nodes_normals().value
+
+    ROI_nifti = nib.load(fn_ROI)
+    ROI_image = ROI_nifti.get_fdata() > 0
+    ROI_affine = ROI_nifti.get_qform()
+
+    nd = mesh_io.NodeData.from_data_grid(m_GMsurf,ROI_image.astype(np.uint16),
+                                         ROI_affine, 'ROI')
+    ROI_idx = nd.value > 0
+    m_GMsurf.add_node_field(nd,'ROI')
+    return m_GMsurf, m_GMsurf.nodes.node_coord[ROI_idx]
+
+
+def sphericalROI(m, ROI_centerMNI, ROI_radius, ROI_shift, subpath):
+    ''' get GM surface inside a spherical ROI
+    '''
+    gm_label = 1002
+    m_GMsurf = m.crop_mesh(tags=gm_label)
+    m_GMsurf = m_GMsurf.crop_mesh(elm_type=2)
+    m_GMsurf.nodes.node_coord -= ROI_shift*m_GMsurf.nodes_normals().value
+
+    ROI_center = transformations.mni2subject_coords(ROI_centerMNI, subpath)
+    # tr_centers = m_GMsurf.elements_baricenters().value
+    # ROI_idx = np.linalg.norm(tr_centers-ROI_center,axis=1) <= ROI_radius
+    # ed=mesh_io.ElementData(ROI_idx)
+    # m_GMsurf.add_element_field(ed,'ROI')
+    # return m_GMsurf, tr_centers[ROI_idx]
+
+    ROI_idx = np.linalg.norm(m_GMsurf.nodes.node_coord-ROI_center,axis=1) <= ROI_radius
+    nd=mesh_io.NodeData(ROI_idx)
+    m_GMsurf.add_node_field(nd,'ROI')
+    return m_GMsurf, m_GMsurf.nodes.node_coord[ROI_idx]
 
 
 def get_closest_skin_pos(pos, m, label_skin = 1005):
@@ -413,6 +460,28 @@ def get_closest_skin_pos(pos, m, label_skin = 1005):
     elm_centers = m.elements_baricenters().value[idx_skin]
     distQ=np.sum((elm_centers - CoG)**2,axis=1)
     return elm_centers[np.argmin(distQ)]
+
+
+# def relabel_internal_air(m, subpath, label_skin = 1005, label_new = 1099,
+#                          label_internal_air = 501):
+#     ''' relabels skin in internal air cavities to something else;
+#         relevant for charm meshes
+#     '''
+#     subject_files = SubjectFiles(subpath=subpath)
+#     # relabel internal skin to some other label
+#     label_nifti=nib.load(subject_files.labeling)
+#     label_affine=label_nifti.affine
+#     label_img = label_nifti.get_fdata().astype(int)
+#     label_img = label_img == label_internal_air
+#     label_img = mrph.binary_dilation(label_img,iterations=2)
+
+#     m = copy.copy(m)
+#     ed = mesh_io.ElementData.from_data_grid(m,label_img,label_affine, order=0)
+#     idx = ed.value * (m.elm.tag1 == label_skin)
+#     m.elm.tag1[idx] = label_new
+#     m.elm.tag2[:] = m.elm.tag1
+#     return m
+
 
 def get_outer_skin_points(m, tol: float = 1e-3, label_skin = 1005):
         """Return indices of points estimated to be on the outer skin surface
@@ -428,7 +497,7 @@ def get_outer_skin_points(m, tol: float = 1e-3, label_skin = 1005):
             Tolerance for avoiding self-intersections.
         label_skin : int
             skin label (standard: 1005)
-
+            
         RETURNS
         -------
         indices : ndarray
@@ -450,6 +519,7 @@ def get_outer_skin_points(m, tol: float = 1e-3, label_skin = 1005):
         else:
             return np.setdiff1d(subset, subset[idx], assume_unique=True)
 
+
 def relabel_internal_air(m, label_skin = 1005, label_new = 1099):
     ''' relabels skin in internal air cavities to something else;
         relevant for charm meshes
@@ -457,34 +527,14 @@ def relabel_internal_air(m, label_skin = 1005, label_new = 1099):
     m = copy.copy(m)
     # outer skin nodes
     idx_skinNodes = get_outer_skin_points(m, label_skin = label_skin) + 1
-
+    
     # internal air triangles
     idx_innerAirTri = (m.elm.elm_type == 2) * (m.elm.tag1 == label_skin)
     idx_innerAirTri *= ~np.any(np.in1d(m.elm.node_number_list, idx_skinNodes).reshape(-1, 4), axis=1)
-
+    
     m.elm.tag1[idx_innerAirTri] = 1099
     m.elm.tag2[:] = m.elm.tag1
     return m
-
-# def relabel_internal_air(m, subpath, label_skin = 1005, label_new = 1099,
-#                          label_internal_air = 501):
-#     ''' relabels skin in internal air cavities to something else;
-#         relevant for charm meshes
-#     '''
-#     subject_files = SubjectFiles(subpath=subpath)
-#     # relabel internal skin to some other label
-#     label_nifti=nib.load(subject_files.labeling)
-#     label_affine=label_nifti.affine
-#     label_img = label_nifti.get_fdata().astype(int)
-#     label_img = label_img == label_internal_air
-#     label_img = mrph.binary_dilation(label_img,iterations=2)
-#
-#     m = copy.copy(m)
-#     ed = mesh_io.ElementData.from_data_grid(m,label_img,label_affine, order=0)
-#     idx = ed.value * (m.elm.tag1 == label_skin)
-#     m.elm.tag1[idx] = label_new
-#     m.elm.tag2[:] = m.elm.tag1
-#     return m
 
 
 def project_to_pial(pos, m, label_mask = 1100, label_GM = 1002):
@@ -574,28 +624,26 @@ def get_central_gm_with_mask(subpath, hemi, fn_mask_fsspace):
     idx_mask, _ = convert_mask(fn_mask_fsspace, hemi, subpath)
 
     if hemi == 'lh':
-       idx_mask = np.hstack((idx_mask, np.zeros(nr_nodes_rh, dtype=bool)))
+       idx_mask = np.hstack((idx_mask, np.zeros(nr_nodes_rh,dtype=bool)))
     else:
-       idx_mask = np.hstack((np.zeros(nr_nodes_lh, dtype=bool), idx_mask))
+       idx_mask = np.hstack((np.zeros(nr_nodes_lh,dtype=bool), idx_mask))
 
     nd=mesh_io.NodeData(idx_mask)
-    m_surf.add_node_field(nd, fn_mask_fsspace)
+    m_surf.add_node_field(nd,fn_mask_fsspace)
     return m_surf
 
 
 def run_simus(subpath, pathfem, current_center, N,
               radius_surround, phi_offset,
-              EL_center, EL_surround, bone_change=False):
+              EL_center, EL_surround,
+              map_to_surf = True, map_to_fsavg = True):
     ''' run a batch of simulations with varying radii and/or phi_offsets
     '''
     S = sim_struct.SESSION()
     S.subpath = subpath
     S.pathfem = pathfem
-
-    S.map_to_surf = True
-    S.map_to_vol = True
-    S.map_to_fsavg = True
-    S.map_to_MNI = True
+    S.map_to_surf = map_to_surf
+    S.map_to_fsavg = map_to_fsavg
     S.open_in_gmsh = False
 
     phis_surround = np.arange(N)/N*360
@@ -619,11 +667,6 @@ def run_simus(subpath, pathfem, current_center, N,
                                           el_surround = EL_surround)
                 ff = SubjectFiles(subpath=subpath)
                 S.fnamehead = ff.fnamehead
-
-            if bone_change:
-                tdcs_list.cond[6].value = 0.01
-                tdcs_list.cond[7].value = 0.01
-
     return S.run()
 
 
@@ -652,12 +695,13 @@ def analyse_simus(subpath, pathfem, hemi, fn_mask_fsspace,
             print(os.path.split(res_list[i])[-1])
             nd = next(x.value for x in m.nodedata if x.field_name==var_name)
             m_surf.add_node_field(nd, 'r'+str(radius)+'_p'+str(offset))
+
             roi_median = np.append(roi_median, np.median(nd[idx_mask]))
             focality = np.append(focality, np.sum(nd_sze[nd > roi_median[-1]]))
             i+=1
 
-    roi_median = roi_median.reshape(len(radius_surround), len(phi_offset))
-    focality = focality.reshape(len(radius_surround), len(phi_offset))
+    roi_median = roi_median.reshape(len(radius_surround),len(phi_offset))
+    focality = focality.reshape(len(radius_surround),len(phi_offset))
 
     i, j = np.where(roi_median >= cutoff)
     if len(i) == 0:
@@ -666,3 +710,83 @@ def analyse_simus(subpath, pathfem, hemi, fn_mask_fsspace,
     best_condition = [radius_surround[i[idx]], phi_offset[j[idx]]]
 
     return m_surf, roi_median, focality, best_condition
+
+
+def analyse_simus2(subpath, pathfem, m_surf,
+                   radius_surround, phi_offset, var_name, cutoff):
+    ''' get a few key metrics by mapping the results on the given surface
+    '''
+    res_list = glob(os.path.join(escape(pathfem),'*TDCS*.msh'))
+    # sort res_list according to simulation number
+    numbers = list(list(map(int,re.findall('[0-9]+', x))) for x in res_list)
+    idx = np.argsort(np.sum(numbers,axis=1))
+    res_list = np.array(res_list)[idx]
+    assert len(res_list) == len(radius_surround)*len(phi_offset)
+
+    var_name, quantity = var_name.split('_',maxsplit = 1)
+    if quantity not in ['norm', 'magn', 'normal', 'tangent', 'angle']:
+        raise ValueError('Invalid quanty in {0}'.format(quantity))
+    print('Analysing '+var_name+' '+quantity)
+
+    def calc_quantities(nd, quantities):
+        d = dict.fromkeys(quantities)
+        for q in quantities:
+            if q == 'norm' or q == 'magn':
+                d[q] = nd.norm()
+            elif q == 'normal':
+                d[q] = nd.normal()
+                d[q].value *= -1
+            elif q == 'tangent':
+                d[q] = nd.tangent()
+            elif q == 'angle':
+                d[q] = nd.angle()
+            else:
+                raise ValueError('Invalid quantity: {0}'.format(q))
+        return d
+
+    m_surf = copy.deepcopy(m_surf)
+    nd_sze = m_surf.nodes_volumes_or_areas().value
+    assert len(m_surf.nodedata) == 1
+    idx_mask = m_surf.nodedata[0].value > 0
+    roi_median = np.array([])
+    focality = np.array([])
+    i=0
+    for radius in radius_surround:
+        for offset in phi_offset:
+            m = mesh_io.read_msh(res_list[i])
+            # Crop out WM, GM, and CSF. We add WM and CSF to make the mesh convex.
+            m = m.crop_mesh(tags=[1,2,3])
+            # Set the volume to be GM. The interpolation will use only the tetrahedra in the volume.
+            th_indices = m.elm.elm_number[m.elm.tag1 == 2]
+
+            # Interpolate to surface
+            ed = next(x for x in m.elmdata if x.field_name==var_name)
+            assert ed.nr_comp == 3
+            interpolated = ed.interpolate_to_surface(m_surf, th_indices=th_indices)
+            nd = calc_quantities(interpolated, [quantity]).popitem()[1]
+            m_surf.add_node_field(nd, 'r'+str(radius)+'_p'+str(offset))
+
+            roi_median = np.append(roi_median, np.median(nd.value[idx_mask]))
+            focality = np.append(focality, np.sum(nd_sze[nd.value > roi_median[-1]]))
+            i+=1
+
+    roi_median = roi_median.reshape(len(radius_surround),len(phi_offset))
+    focality = focality.reshape(len(radius_surround),len(phi_offset))
+
+    i, j = np.where(roi_median >= cutoff)
+    if len(i) == 0:
+        raise ValueError("median field strength in ROI never exceeds the threshold!")
+    idx = np.argmin(focality[i,j])
+    best_condition = [radius_surround[i[idx]], phi_offset[j[idx]]]
+
+    return m_surf, roi_median, focality, best_condition
+
+
+
+# def blubb(m_surf):
+#     ''' get a few key metrics by mapping the results on the given surface
+#     '''
+#     m_surf = copy.deepcopy(m_surf)
+#     m_surf.add_node_field(m_surf.nodedata[0], 'blubb')
+#     m_surf.add_node_field(m_surf.nodedata[0], 'blubb2')
+#     return m_surf
