@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import shutil
-from copy import deepcopy
 from scipy.io import savemat
 from time import perf_counter
 from datetime import timedelta
@@ -9,41 +8,6 @@ from simnibs import __version__, sim_struct, mesh_io, mni2subject_coords
 from simnibs.utils.file_finder import SubjectFiles
 import Nx1_stuff
 from emp_chandefs import prepare_emp
-
-def _calc_quantities(nd, quantities):
-    d = dict.fromkeys(quantities)
-    for q in quantities:
-        if q == 'magn':
-            d[q] = nd.norm()
-        elif q == 'normal':
-            d[q] = nd.normal()
-            d[q].value *= -1
-        elif q == 'tangent':
-            d[q] = nd.tangent()
-        elif q == 'angle':
-            d[q] = nd.angle()
-        else:
-            raise ValueError('Invalid quantity: {0}'.format(q))
-    return d
-
-
-def _map_E_to_surf(m, m_surf, quantities=['magn', 'normal', 'tangent']):
-    ''' map E from the volume meshes to the GM centeral surfaces
-    '''
-    quantities=['magn', 'normal', 'tangent']
-
-    m = m.crop_mesh(tags=[1, 2, 3])
-    # Set the volume to be GM. The interpolation will use only the tetrahedra in the volume.
-    th_indices = m.elm.elm_number[m.elm.tag1 == 2]
-
-    m_results = deepcopy(m_surf)
-    nd = m.field['E'].interpolate_to_surface(m_results, th_indices=th_indices)
-    q = _calc_quantities(nd, quantities)
-
-    for q_name, q_data in q.items():
-        m_results.add_node_field(q_data, 'E_' + q_name)
-
-    return m_results
 
 def emp_coord_out(subj_dict, proj_dict, root_dir):
     """Simulate previous literature montages"""
@@ -152,23 +116,41 @@ def emp_montage(subj_dict, proj_dict, root_dir, extract_only=False):
         except:
             return (subname, project, "NoAnalysis")
 
-        if "P6" in project:
-            msh_file = f"{subject_files.subid}_TDCS_1_scalar.msh"
-            msh_path = os.path.join(pathfem, msh_file)
-            m_surf = mesh_io.read_msh(os.path.join(subpath,
-                                                   "mesh_with_cereb_roi.msh"))
-            pos_center = np.array([0,0,0])
-        else:
-            msh_file = f"{subject_files.subid}_TDCS_1_scalar_central.msh"
-            msh_path = os.path.join(pathfem, "subject_overlays", msh_file)
-            m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)
-        nd_sze = m_surf.nodes_volumes_or_areas().value
-        idx_mask = m_surf.nodedata[0].value.astype(bool)
+    if "P6" in project:
+        # P6 has a spherical ROI, not cortical mask
+        msh_file = f"{subject_files.subid}_TDCS_1_scalar.msh"
         try:
-            m = mesh_io.read_msh(msh_path)
+            mesh = mesh_io.read_msh(os.path.join(pathfem, msh_file))
         except:
             return (subname, project, "NoMesh")
-        m = _map_E_to_surf(m, m_surf)
+        gray_matter = mesh.crop_mesh(2)
+        ROI_center = [38, -51, -28]
+        subj_center = mni2subject_coords(ROI_center, subpath)
+        rad = 20.
+        elm_centers = gray_matter.elements_baricenters()[:]
+        roi = np.linalg.norm(elm_centers - subj_center, axis=1) < rad
+        elm_vols = gray_matter.elements_volumes_and_areas()[:]
+        gray_matter.add_element_field(roi, 'roi')
+        field = gray_matter.field[field_name][:]
+        vals = field[roi]
+        mean = np.average(vals, weights=elm_vols[roi])
+        median = np.median(vals)
+        focality_med = np.sum(vals[vals>median])
+        focality_mean = np.sum(vals[vals>mean])
+        if not extract_only:
+            mesh_io.write_msh(gray_matter, os.path.join(S.pathfem,
+                                                        "results.msh"))
+        pos_center = subj_center
+    else:
+        msh_file = f"{subject_files.subid}_TDCS_1_scalar_central.msh"
+        m_surf = Nx1_stuff.get_central_gm_with_mask(subpath, hemi, mask_path)
+        nd_sze = m_surf.nodes_volumes_or_areas().value
+        idx_mask = m_surf.nodedata[0].value
+        try:
+            m = mesh_io.read_msh(os.path.join(pathfem, "subject_overlays",
+                                              msh_file))
+        except:
+            return (subname, project, "NoMesh")
         assert m.nodes.nr == m_surf.nodes.nr
         nd = next(x.value for x in m.nodedata if x.field_name==var_name)
         m_surf.add_node_field(nd, "result")

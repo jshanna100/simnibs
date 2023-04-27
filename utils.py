@@ -1,5 +1,6 @@
 import pyvista as pv
 import numpy as np
+import re
 
 def read_curv(fn):
     ''' Reads a freesurfer .curv file
@@ -75,6 +76,80 @@ def elec_plot_emp(mesh, cam_dist=200, return_foc=False, P8=False,
     else:
         return image
 
+def pvmesh_from_skin_geo(infile):
+    with open(infile, "rt") as f:
+        lines = f.readlines()
+    points = []
+    faces = []
+    for idx, line in enumerate(lines[1:]):
+        mch = re.match("ST\((.*), (.*), (.*),(.*), (.*), (.*),(.*), (.*), (.*)\)",
+                       line)
+        if mch:
+            these_points = np.array([float(f) for f in mch.groups(0)]).reshape(-1, 3)
+            this_face = np.array([0, 1, 2]) + idx*3
+            points.append(these_points)
+            faces.append(np.hstack((3, this_face)))
+    points = np.vstack(points)
+    faces = np.hstack(faces)
+    mesh = pv.PolyData(points, faces)
+    return mesh
+
+def elpos_from_geo(infile):
+    with open(infile, "rt") as f:
+        lines = f.readlines()
+    points = []
+    for idx, line in enumerate(lines[1:]):
+        mch = re.match("SP\((.*), (.*), (.*)\){(.*)}", line)
+        if mch:
+            these_points = np.array([float(f) for f in mch.groups(0)])
+            points.append(these_points)
+    points = np.vstack(points)
+
+    return points
+
+def elpos_from_brainsight(infile):
+    with open(infile, "rt") as f:
+        lines = f.readlines()
+    coords = {}
+    for idx, line in enumerate(lines[1:]):
+        mch = re.match("(.*_electrode(_\d)?)\t([\d.-]*)\t([\d.-]*)\t([\d.-]*)", line)
+        if mch:
+            coords[mch.groups()[0]] = np.array([float(c) for c in mch.groups()[2:5]])
+    return coords
+
+def elec_plot_geo(mesh, elecs, cam_dist=200, return_foc=False, elec_rad=5.):
+    # renderer
+    plotter = pv.Plotter(off_screen=True)
+    plotter.set_background("white")
+    # skin
+    plotter.add_mesh(mesh, color=[.7, .5, .5])
+
+    # electrodes
+    surr_count = 0
+    surr_cols = ["red", "green", "blue"]
+    for elec in elecs:
+        sph_mesh = pv.Sphere(elec_rad, elec[:3])
+        if int(elec[-1]) == 1:
+            color = "black"
+            foc = elec[:3]
+        else:
+            color = surr_cols[surr_count]
+            surr_count += 1
+        plotter.add_mesh(sph_mesh, color=color)
+
+    # camera work
+    # centre point of this electrode for focal point
+    plotter.camera.focal_point = foc
+    # normed vector from origin to focal point
+    norm_vec = foc / np.linalg.norm(foc)
+    pos = foc + norm_vec * cam_dist
+    plotter.camera.position = pos
+
+    image = plotter.screenshot(None, return_img=True)
+    if return_foc:
+        return image, foc
+    else:
+        return image
 
 def elec_plot(mesh, cam_dist=200, return_foc=False):
     # renderer
@@ -120,11 +195,17 @@ def elec_plot(mesh, cam_dist=200, return_foc=False):
 def mag_plot(mesh, foc="elec", cam_dist=200, clim=[0., .6], return_foc=False):
     # renderer
     plotter = pv.Plotter(off_screen=True)
-
+    plotter.set_background("white")
     # get gm
-    gm_inds = np.where(mesh.cell_data["gmsh:physical"]==2)[0]
-    gm_cells = mesh.extract_cells(gm_inds)
-    plotter.add_mesh(gm_cells, scalars="magnE", clim=clim)
+    if "magnE" in mesh.array_names:
+        gm_inds = np.where(mesh.cell_data["gmsh:physical"]==2)[0]
+        gm_cells = mesh.extract_cells(gm_inds)
+        plotter.add_mesh(gm_cells, scalars="magnE",
+                         clim=clim, scalar_bar_args={"color":"black"})
+    else:
+        plotter.add_mesh(mesh, scalars="E_magn",
+                         clim=clim, scalar_bar_args={"color":"black"})
+
 
     # camera work
     if foc == "elec":
@@ -153,7 +234,8 @@ def mag_plot(mesh, foc="elec", cam_dist=200, clim=[0., .6], return_foc=False):
 def roi_plot(mesh, foc="centre", cam_dist=200, clim=[0., .6]):
     # renderer
     plotter = pv.Plotter(off_screen=True)
-    plotter.add_mesh(mesh, show_scalar_bar=False)
+    plotter.set_background("white")
+    plotter.add_mesh(mesh, show_scalar_bar=False, scalars="mask")
 
     # camera work
     if foc == "centre":

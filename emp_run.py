@@ -22,9 +22,9 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P3_lTP-LH",
          "P8_lDLPFC-LH"]
 hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
 
-projs = ["P2", "P6"]
-masks = ["P2_lPCC-new-LH", None]
-hemis = ["lh", None]
+projs = ["P6"]
+masks = [None]
+hemis = [None]
 
 
 kwargs = {"extract_only":False}
@@ -36,7 +36,7 @@ root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
 # root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
-n_jobs = 8
+n_jobs = 1
 queue = list(product(subj_dicts, proj_dicts))
 results = Parallel(n_jobs=n_jobs)(delayed(emp_montage)(*q, root_dir, **kwargs) for q in queue)
 results = [r for r in results if r is not None]
