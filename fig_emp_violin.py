@@ -29,7 +29,7 @@ df_4["Version"] = ["4"] * len(df_4)
 df = pd.concat([df_3, df_4], ignore_index=True)
 
 df = df.query("Summary=='ROI_Median'")
-order = ["P1", "P2", "P3", "P4", "P5", "P7", "P8"]
+order = ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"]
 
 #df = df.query("Version=='3'")
 hue_spec = "Version"

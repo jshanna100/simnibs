@@ -585,7 +585,7 @@ def get_central_gm_with_mask(subpath, hemi, fn_mask_fsspace):
 
 def run_simus(subpath, pathfem, current_center, N,
               radius_surround, phi_offset,
-              EL_center, EL_surround, bone_change=False):
+              EL_center, EL_surround):
     ''' run a batch of simulations with varying radii and/or phi_offsets
     '''
     S = sim_struct.SESSION()
@@ -619,10 +619,6 @@ def run_simus(subpath, pathfem, current_center, N,
                                           el_surround = EL_surround)
                 ff = SubjectFiles(subpath=subpath)
                 S.fnamehead = ff.fnamehead
-
-            if bone_change:
-                tdcs_list.cond[6].value = 0.01
-                tdcs_list.cond[7].value = 0.01
 
     return S.run()
 
