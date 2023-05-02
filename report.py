@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 plt.ion()
 
-proj_nr = 1
-subj = "ernie"
+proj_nr = 3
+subj = "pilot"
 cam_dist = 400
 base_dir = "/home/jev/simnibs/"
 
