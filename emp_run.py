@@ -22,18 +22,12 @@ masks = ["P1_rTP-RH", "P2_lPCC-new-LH", "P3_lTP-LH",
          "P8_lDLPFC-LH"]
 hemis = ['rh', "lh", "lh", "lh", "lh", None, "rh", "lh"]
 
-projs = ["P6"]
-masks = [None]
-hemis = [None]
-
 
 kwargs = {"extract_only":False}
 
 proj_dicts = [{proj:[mask, hemi]} for proj, mask, hemi in zip(projs, masks,
                                                               hemis)]
 root_dir = "/media/Linux5_Data03/hannaj/simnibs/"
-# root_dir = "/home/jev/temp/"
-# root_dir = "/home/jev/simnibs/"
 data_dir = os.path.join(root_dir, str(round(version)))
 subj_dicts = build_subject_paths(data_dir)
 n_jobs = 1
